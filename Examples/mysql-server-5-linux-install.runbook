@@ -1,0 +1,158 @@
+# This RunBook file generated using Divine Terminal. To download Free Edition of Divine Terminal go to www.divineterminal.com
+!RunBook
+authors: Divine Cloud Team
+description: This RunBook installs MySQL 5 community server edition using Yum or apt-get package manager, based on the option available.
+groupSteps: true
+hardwareRequirements: Minimum memory of 512 MB or more.
+name: MySQL 5 Server Linux Install RunBook
+preRequisite: |-
+  <ul>
+  <li>Make sure either yum or apt-get package managers are installed.</li>
+  <li>Make sure either wget or curl command is installed.</li>
+  </ul>
+references: '<i style="color: #c8c8c8;">No references provided.</i>'
+sequence: 7
+stepGroupsName: Install MySQL Server
+steps:
+- answersRequired: false
+  id: Id-1
+  idempotent: false
+  item: !ScriptItem
+    arguments: ''
+    description: In this step, the package managers (yum or apt-get) are updated to latest version.
+    invokingProgram: sh
+    language: Shell
+    reboot: false
+    script: |-
+      if hash yum 2>/dev/null; then
+          echo "yum command is present"
+          sudo yum -y update
+      else
+          if hash apt-get 2>/dev/null; then
+              echo "apt-get command is present"
+              sudo apt-get -y update
+          else
+              echo "Neither yum nor apt-get command is installed on this instance. Please install one of the packages before moving forward with this run book."
+              exit 1
+          fi
+      fi
+  itemType: Script
+  name: Update Package Managers
+  replaceProperties: false
+- answersRequired: false
+  id: Id0
+  idempotent: false
+  item: !ScriptItem
+    arguments: ''
+    description: In this step, mysql binary package is downloaded to the target server.
+    invokingProgram: sh
+    language: Shell
+    reboot: false
+    script: |-
+      if hash yum 2>/dev/null; then
+          echo "yum command is present"
+          if hash wget 2>/dev/null; then
+              echo "wget command is present"
+              wget --directory-prefix=/tmp http://dev.mysql.com/get/mysql-community-release-el7-5.noarch.rpm
+          else
+              if hash curl 2>/dev/null; then
+                  echo "curl command is present"
+                  curl -o /tmp/mysql-community-release-el7-5.noarch.rpm http://dev.mysql.com/get/mysql-community-release-el7-5.noarch.rpm
+              else
+                  echo "Neither wget nor curl command is installed on this instance. Please install one of the packages before moving forward with this run book."
+                  exit 1
+              fi
+          fi
+          sudo yum localinstall -y /tmp/mysql-community-release-el7-5.noarch.rpm
+          yum repolist enabled | grep "mysql.*-community.*"
+      else
+          if hash apt-get 2>/dev/null; then
+              echo "apt-get command is present"
+              if hash wget 2>/dev/null; then
+                  echo "wget command is present"
+                  wget --directory-prefix=/tmp http://dev.mysql.com/get/mysql-apt-config_0.3.6-1ubuntu15.04_all.deb
+              else
+                  if hash curl 2>/dev/null; then
+                      echo "curl command is present"
+                      curl -o /tmp/mysql-apt-config_0.3.6-1ubuntu15.04_all.deb http://dev.mysql.com/get/mysql-apt-config_0.3.6-1ubuntu15.04_all.deb
+                  else
+                      echo "Neither wget nor curl command is installed on this instance. Please install one of the packages before moving forward with this run book."
+                      exit 1
+                  fi
+              fi
+              sudo dpkg -i /tmp/mysql-apt-config_0.3.6-1ubuntu15.04_all.deb
+          else
+              echo "Neither yum nor apt-get command is installed on this instance. Please install one of the packages before moving forward with this run book."
+              exit 1
+          fi
+      fi
+  itemType: Script
+  name: Download MySQL Release Package
+  replaceProperties: false
+- answersRequired: false
+  id: Id1
+  idempotent: false
+  item: !ScriptItem
+    arguments: ''
+    description: This step installs MySQL server.
+    invokingProgram: sh
+    language: Shell
+    reboot: false
+    script: |-
+      if hash yum 2>/dev/null; then
+          echo "yum command is present"
+          sudo yum install -y mysql-community-server
+      else
+          if hash apt-get 2>/dev/null; then
+              echo "apt-get command is present"
+              sudo apt-get install -y mysql-server
+          else
+              echo "Neither yum nor apt-get command is installed on this instance. Please install one of the packages before moving forward with this run book."
+              exit 1
+          fi
+      fi
+  itemType: Script
+  name: Install MySQL Server
+  replaceProperties: false
+- answersRequired: false
+  id: Id2
+  idempotent: false
+  item: !ScriptItem
+    arguments: ''
+    description: In this step, MySQL server is started if its not already started.
+    invokingProgram: sh
+    language: Shell
+    reboot: false
+    script: |
+      sudo service mysql status
+      STATUS=$?
+      if [ $STATUS = 1 ]
+      then
+          echo "mysql server not installed"
+      elif [ $STATUS = 3 ]
+      then
+          echo "mysql server not started. Starting now..."
+          sudo service mysqld start
+          sleep 2
+          sudo service mysql status
+          STATUS=$?
+          if [ $STATUS = 0 ]
+          then
+              echo "mysql server started successfully"
+          else
+              echo "unable to start mysql server"
+              echo "Status code : " + $STATUS
+          fi
+      elif [ $STATUS = 0 ]
+      then
+          echo "mysql server already running"
+      else
+          echo $STATUS
+      fi
+  itemType: Script
+  name: Start MySQL Server
+  replaceProperties: false
+summary: This is a run book for installing MySQL Community Server version 5 on any linux environments.
+supportedOs: ''
+utilityMode: false
+version: '1'

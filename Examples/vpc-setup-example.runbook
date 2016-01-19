@@ -1,0 +1,1128 @@
+# This RunBook file generated using Divine Terminal. To download Free Edition of Divine Terminal go to www.divineterminal.com
+!RunBook
+authors: DivineCloud Team
+description: |-
+  This runbook sets up a complete AWS VPC network, including following components:
+  <ul>
+      <li>VPC</li>
+      <li>One or more Public Subnets</li>
+      <li>One or more Private Subnets</li>
+      <li>Internet Gateway</li>
+      <li>Security Group</li>
+      <li>Route Table</li>
+      <li>0 or 1 NAT instance</li>
+      <li>1 or more EC2 Instances</li>
+  </ul>
+  <br>
+
+  <br>
+
+  The diagram below depicts the VPC network created using this runbook:
+  <br><br>
+  <table width="100%">
+  <tbody><tr>
+  <td width="15%">
+  </td>
+  <td width="70%">
+  <img src="https://s3.amazonaws.com/artifacts.divineterminal.com/samples/images/aws-nat-instance-diagram.png" align="center">
+  </td>
+  <td width="15%">
+  </td>
+  </tr>
+  </tbody></table>
+  <br><br><br>
+generatedPropertiesFilePath: ''
+groupSteps: false
+hardwareRequirements: Minimum 512MB RAM required.
+name: VPC Setup RunBook
+preRequisite: |-
+  <ul>
+      <li>Make sure the python language is installed on the target machine.</li>
+      <li>Make sure the AWS boto3 library for python is installed on the target machine.</li>
+  </ul>
+properties:
+- defaultValue: ''
+  description: '<i style="color: #c8c8c8;">No description provided.</i>'
+  multiSelect: ''
+  name: AWS_ACCESS_KEY
+  type: Text
+- defaultValue: ''
+  description: '<i style="color: #c8c8c8;">No description provided.</i>'
+  multiSelect: ''
+  name: AWS_SECRET_KEY
+  type: Password
+- defaultValue: ''
+  description: '<i style="color: #c8c8c8;">No description provided.</i>'
+  multiSelect: ''
+  name: AWS_REGION
+  type: Text
+- defaultValue: ''
+  description: '<i style="color: #c8c8c8;">No description provided.</i>'
+  multiSelect: ''
+  name: VPC_Name
+  type: Text
+- defaultValue: ''
+  description: '<i style="color: #c8c8c8;">No description provided.</i>'
+  multiSelect: ''
+  name: VPC_CIDR
+  type: Text
+- defaultValue: ''
+  description: '<i style="color: #c8c8c8;">No description provided.</i>'
+  multiSelect: Name,CIDR,Public, AttachToNAT
+  name: Subnets
+  type: JsonGrid
+- defaultValue: ''
+  description: '<i style="color: #c8c8c8;">No description provided.</i>'
+  multiSelect: ''
+  name: SecurityGroupName
+  type: Text
+- defaultValue: ''
+  description: '<i style="color: #c8c8c8;">No description provided.</i>'
+  multiSelect: Protocol,Port,CIDR,Inbound
+  name: SecurityRules
+  type: JsonGrid
+- defaultValue: ''
+  description: '<i style="color: #c8c8c8;">No description provided.</i>'
+  multiSelect: SubnetName, InstanceName, SecurityGroupName, IP, AutoGeneratePublicIP, AMI, Type, keyPairName
+  name: Instances
+  type: JsonGrid
+- defaultValue: ''
+  description: '<i style="color: #c8c8c8;">No description provided.</i>'
+  multiSelect: Name, KeyPairName, SubnetName, AMI, IP
+  name: NAT
+  type: JsonGrid
+references: http://docs.aws.amazon.com/AmazonVPC/latest/UserGuide/VPC_Scenario2.html
+releaseName: ''
+releaseVersion: ''
+sequence: 8
+stepGroupsName: ''
+steps:
+- answersRequired: false
+  fileIncludes: ''
+  fileIncludesDestinationFolder: ''
+  generatedPropertiesFilePath: ''
+  id: Id0U
+  idempotent: false
+  item: !PropertiesTransferItem
+    description: "<i style=\"color: #c8c8c8;\">No description provided.</i>\n    \
+      \                                                                          \
+      \          \n                                                              \
+      \                      <input id=\"space3_document_stepDataList.step-1.item.description_hidden\"\
+      \ type=\"hidden\" value=\"<i style=&quot;color: #c8c8c8;&quot;>No description\
+      \ provided.</i>\"><input id=\"space3_document_stepDataList.step-1.item.description_hidden\"\
+      \ type=\"hidden\" value=\"<i style=&quot;color: #c8c8c8;&quot;>No description\
+      \ provided.</i>\n                                                          \
+      \                              \n                                          \
+      \                                          <input id=&quot;space3_document_stepDataList.step-1.item.description_hidden&quot;\
+      \ type=&quot;hidden&quot; value=&quot;<i style=&amp;quot;color: #c8c8c8;&amp;quot;>No\
+      \ description provided.</i>&quot;>\"><input id=\"space3_document_stepDataList.step-1.item.description_hidden\"\
+      \ type=\"hidden\" value=\"<i style=&quot;color: #c8c8c8;&quot;>No description\
+      \ provided.</i>\n                                                          \
+      \                              \n                                          \
+      \                                          <input id=&quot;space3_document_stepDataList.step-1.item.description_hidden&quot;\
+      \ type=&quot;hidden&quot; value=&quot;<i style=&amp;quot;color: #c8c8c8;&amp;quot;>No\
+      \ description provided.</i>&quot;><input id=&quot;space3_document_stepDataList.step-1.item.description_hidden&quot;\
+      \ type=&quot;hidden&quot; value=&quot;<i style=&amp;quot;color: #c8c8c8;&amp;quot;>No\
+      \ description provided.</i>\n                                              \
+      \                                          \n                              \
+      \                                                      <input id=&amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;quot;\
+      \ type=&amp;quot;hidden&amp;quot; value=&amp;quot;<i style=&amp;amp;quot;color:\
+      \ #c8c8c8;&amp;amp;quot;>No description provided.</i>&amp;quot;>&quot;>\"><input\
+      \ id=\"space3_document_stepDataList.step-1.item.description_hidden\" type=\"\
+      hidden\" value=\"<i style=&quot;color: #c8c8c8;&quot;>No description provided.</i>\n\
+      \                                                                          \
+      \              \n                                                          \
+      \                          <input id=&quot;space3_document_stepDataList.step-1.item.description_hidden&quot;\
+      \ type=&quot;hidden&quot; value=&quot;<i style=&amp;quot;color: #c8c8c8;&amp;quot;>No\
+      \ description provided.</i>&quot;><input id=&quot;space3_document_stepDataList.step-1.item.description_hidden&quot;\
+      \ type=&quot;hidden&quot; value=&quot;<i style=&amp;quot;color: #c8c8c8;&amp;quot;>No\
+      \ description provided.</i>\n                                              \
+      \                                          \n                              \
+      \                                                      <input id=&amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;quot;\
+      \ type=&amp;quot;hidden&amp;quot; value=&amp;quot;<i style=&amp;amp;quot;color:\
+      \ #c8c8c8;&amp;amp;quot;>No description provided.</i>&amp;quot;>&quot;><input\
+      \ id=&quot;space3_document_stepDataList.step-1.item.description_hidden&quot;\
+      \ type=&quot;hidden&quot; value=&quot;<i style=&amp;quot;color: #c8c8c8;&amp;quot;>No\
+      \ description provided.</i>\n                                              \
+      \                                          \n                              \
+      \                                                      <input id=&amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;quot;\
+      \ type=&amp;quot;hidden&amp;quot; value=&amp;quot;<i style=&amp;amp;quot;color:\
+      \ #c8c8c8;&amp;amp;quot;>No description provided.</i>&amp;quot;><input id=&amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;quot;\
+      \ type=&amp;quot;hidden&amp;quot; value=&amp;quot;<i style=&amp;amp;quot;color:\
+      \ #c8c8c8;&amp;amp;quot;>No description provided.</i>\n                    \
+      \                                                                    \n    \
+      \                                                                          \
+      \      <input id=&amp;amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;amp;quot;\
+      \ type=&amp;amp;quot;hidden&amp;amp;quot; value=&amp;amp;quot;<i style=&amp;amp;amp;quot;color:\
+      \ #c8c8c8;&amp;amp;amp;quot;>No description provided.</i>&amp;amp;quot;>&amp;quot;>&quot;>\"\
+      ><input id=\"space3_document_stepDataList.step-1.item.description_hidden\" type=\"\
+      hidden\" value=\"<i style=&quot;color: #c8c8c8;&quot;>No description provided.</i>\n\
+      \                                                                          \
+      \              \n                                                          \
+      \                          <input id=&quot;space3_document_stepDataList.step-1.item.description_hidden&quot;\
+      \ type=&quot;hidden&quot; value=&quot;<i style=&amp;quot;color: #c8c8c8;&amp;quot;>No\
+      \ description provided.</i>&quot;><input id=&quot;space3_document_stepDataList.step-1.item.description_hidden&quot;\
+      \ type=&quot;hidden&quot; value=&quot;<i style=&amp;quot;color: #c8c8c8;&amp;quot;>No\
+      \ description provided.</i>\n                                              \
+      \                                          \n                              \
+      \                                                      <input id=&amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;quot;\
+      \ type=&amp;quot;hidden&amp;quot; value=&amp;quot;<i style=&amp;amp;quot;color:\
+      \ #c8c8c8;&amp;amp;quot;>No description provided.</i>&amp;quot;>&quot;><input\
+      \ id=&quot;space3_document_stepDataList.step-1.item.description_hidden&quot;\
+      \ type=&quot;hidden&quot; value=&quot;<i style=&amp;quot;color: #c8c8c8;&amp;quot;>No\
+      \ description provided.</i>\n                                              \
+      \                                          \n                              \
+      \                                                      <input id=&amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;quot;\
+      \ type=&amp;quot;hidden&amp;quot; value=&amp;quot;<i style=&amp;amp;quot;color:\
+      \ #c8c8c8;&amp;amp;quot;>No description provided.</i>&amp;quot;><input id=&amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;quot;\
+      \ type=&amp;quot;hidden&amp;quot; value=&amp;quot;<i style=&amp;amp;quot;color:\
+      \ #c8c8c8;&amp;amp;quot;>No description provided.</i>\n                    \
+      \                                                                    \n    \
+      \                                                                          \
+      \      <input id=&amp;amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;amp;quot;\
+      \ type=&amp;amp;quot;hidden&amp;amp;quot; value=&amp;amp;quot;<i style=&amp;amp;amp;quot;color:\
+      \ #c8c8c8;&amp;amp;amp;quot;>No description provided.</i>&amp;amp;quot;>&amp;quot;>&quot;><input\
+      \ id=&quot;space3_document_stepDataList.step-1.item.description_hidden&quot;\
+      \ type=&quot;hidden&quot; value=&quot;<i style=&amp;quot;color: #c8c8c8;&amp;quot;>No\
+      \ description provided.</i>\n                                              \
+      \                                          \n                              \
+      \                                                      <input id=&amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;quot;\
+      \ type=&amp;quot;hidden&amp;quot; value=&amp;quot;<i style=&amp;amp;quot;color:\
+      \ #c8c8c8;&amp;amp;quot;>No description provided.</i>&amp;quot;><input id=&amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;quot;\
+      \ type=&amp;quot;hidden&amp;quot; value=&amp;quot;<i style=&amp;amp;quot;color:\
+      \ #c8c8c8;&amp;amp;quot;>No description provided.</i>\n                    \
+      \                                                                    \n    \
+      \                                                                          \
+      \      <input id=&amp;amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;amp;quot;\
+      \ type=&amp;amp;quot;hidden&amp;amp;quot; value=&amp;amp;quot;<i style=&amp;amp;amp;quot;color:\
+      \ #c8c8c8;&amp;amp;amp;quot;>No description provided.</i>&amp;amp;quot;>&amp;quot;><input\
+      \ id=&amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;quot;\
+      \ type=&amp;quot;hidden&amp;quot; value=&amp;quot;<i style=&amp;amp;quot;color:\
+      \ #c8c8c8;&amp;amp;quot;>No description provided.</i>\n                    \
+      \                                                                    \n    \
+      \                                                                          \
+      \      <input id=&amp;amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;amp;quot;\
+      \ type=&amp;amp;quot;hidden&amp;amp;quot; value=&amp;amp;quot;<i style=&amp;amp;amp;quot;color:\
+      \ #c8c8c8;&amp;amp;amp;quot;>No description provided.</i>&amp;amp;quot;><input\
+      \ id=&amp;amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;amp;quot;\
+      \ type=&amp;amp;quot;hidden&amp;amp;quot; value=&amp;amp;quot;<i style=&amp;amp;amp;quot;color:\
+      \ #c8c8c8;&amp;amp;amp;quot;>No description provided.</i>\n                \
+      \                                                                        \n\
+      \                                                                          \
+      \          <input id=&amp;amp;amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;amp;amp;quot;\
+      \ type=&amp;amp;amp;quot;hidden&amp;amp;amp;quot; value=&amp;amp;amp;quot;<i\
+      \ style=&amp;amp;amp;amp;quot;color: #c8c8c8;&amp;amp;amp;amp;quot;>No description\
+      \ provided.</i>&amp;amp;amp;quot;>&amp;amp;quot;>&amp;quot;>&quot;>\"><input\
+      \ id=\"space3_document_stepDataList.step-1.item.description_hidden\" type=\"\
+      hidden\" value=\"<i style=&quot;color: #c8c8c8;&quot;>No description provided.</i>\n\
+      \                                                                          \
+      \              \n                                                          \
+      \                          <input id=&quot;space3_document_stepDataList.step-1.item.description_hidden&quot;\
+      \ type=&quot;hidden&quot; value=&quot;<i style=&amp;quot;color: #c8c8c8;&amp;quot;>No\
+      \ description provided.</i>&quot;><input id=&quot;space3_document_stepDataList.step-1.item.description_hidden&quot;\
+      \ type=&quot;hidden&quot; value=&quot;<i style=&amp;quot;color: #c8c8c8;&amp;quot;>No\
+      \ description provided.</i>\n                                              \
+      \                                          \n                              \
+      \                                                      <input id=&amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;quot;\
+      \ type=&amp;quot;hidden&amp;quot; value=&amp;quot;<i style=&amp;amp;quot;color:\
+      \ #c8c8c8;&amp;amp;quot;>No description provided.</i>&amp;quot;>&quot;><input\
+      \ id=&quot;space3_document_stepDataList.step-1.item.description_hidden&quot;\
+      \ type=&quot;hidden&quot; value=&quot;<i style=&amp;quot;color: #c8c8c8;&amp;quot;>No\
+      \ description provided.</i>\n                                              \
+      \                                          \n                              \
+      \                                                      <input id=&amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;quot;\
+      \ type=&amp;quot;hidden&amp;quot; value=&amp;quot;<i style=&amp;amp;quot;color:\
+      \ #c8c8c8;&amp;amp;quot;>No description provided.</i>&amp;quot;><input id=&amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;quot;\
+      \ type=&amp;quot;hidden&amp;quot; value=&amp;quot;<i style=&amp;amp;quot;color:\
+      \ #c8c8c8;&amp;amp;quot;>No description provided.</i>\n                    \
+      \                                                                    \n    \
+      \                                                                          \
+      \      <input id=&amp;amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;amp;quot;\
+      \ type=&amp;amp;quot;hidden&amp;amp;quot; value=&amp;amp;quot;<i style=&amp;amp;amp;quot;color:\
+      \ #c8c8c8;&amp;amp;amp;quot;>No description provided.</i>&amp;amp;quot;>&amp;quot;>&quot;><input\
+      \ id=&quot;space3_document_stepDataList.step-1.item.description_hidden&quot;\
+      \ type=&quot;hidden&quot; value=&quot;<i style=&amp;quot;color: #c8c8c8;&amp;quot;>No\
+      \ description provided.</i>\n                                              \
+      \                                          \n                              \
+      \                                                      <input id=&amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;quot;\
+      \ type=&amp;quot;hidden&amp;quot; value=&amp;quot;<i style=&amp;amp;quot;color:\
+      \ #c8c8c8;&amp;amp;quot;>No description provided.</i>&amp;quot;><input id=&amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;quot;\
+      \ type=&amp;quot;hidden&amp;quot; value=&amp;quot;<i style=&amp;amp;quot;color:\
+      \ #c8c8c8;&amp;amp;quot;>No description provided.</i>\n                    \
+      \                                                                    \n    \
+      \                                                                          \
+      \      <input id=&amp;amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;amp;quot;\
+      \ type=&amp;amp;quot;hidden&amp;amp;quot; value=&amp;amp;quot;<i style=&amp;amp;amp;quot;color:\
+      \ #c8c8c8;&amp;amp;amp;quot;>No description provided.</i>&amp;amp;quot;>&amp;quot;><input\
+      \ id=&amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;quot;\
+      \ type=&amp;quot;hidden&amp;quot; value=&amp;quot;<i style=&amp;amp;quot;color:\
+      \ #c8c8c8;&amp;amp;quot;>No description provided.</i>\n                    \
+      \                                                                    \n    \
+      \                                                                          \
+      \      <input id=&amp;amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;amp;quot;\
+      \ type=&amp;amp;quot;hidden&amp;amp;quot; value=&amp;amp;quot;<i style=&amp;amp;amp;quot;color:\
+      \ #c8c8c8;&amp;amp;amp;quot;>No description provided.</i>&amp;amp;quot;><input\
+      \ id=&amp;amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;amp;quot;\
+      \ type=&amp;amp;quot;hidden&amp;amp;quot; value=&amp;amp;quot;<i style=&amp;amp;amp;quot;color:\
+      \ #c8c8c8;&amp;amp;amp;quot;>No description provided.</i>\n                \
+      \                                                                        \n\
+      \                                                                          \
+      \          <input id=&amp;amp;amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;amp;amp;quot;\
+      \ type=&amp;amp;amp;quot;hidden&amp;amp;amp;quot; value=&amp;amp;amp;quot;<i\
+      \ style=&amp;amp;amp;amp;quot;color: #c8c8c8;&amp;amp;amp;amp;quot;>No description\
+      \ provided.</i>&amp;amp;amp;quot;>&amp;amp;quot;>&amp;quot;>&quot;><input id=&quot;space3_document_stepDataList.step-1.item.description_hidden&quot;\
+      \ type=&quot;hidden&quot; value=&quot;<i style=&amp;quot;color: #c8c8c8;&amp;quot;>No\
+      \ description provided.</i>\n                                              \
+      \                                          \n                              \
+      \                                                      <input id=&amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;quot;\
+      \ type=&amp;quot;hidden&amp;quot; value=&amp;quot;<i style=&amp;amp;quot;color:\
+      \ #c8c8c8;&amp;amp;quot;>No description provided.</i>&amp;quot;><input id=&amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;quot;\
+      \ type=&amp;quot;hidden&amp;quot; value=&amp;quot;<i style=&amp;amp;quot;color:\
+      \ #c8c8c8;&amp;amp;quot;>No description provided.</i>\n                    \
+      \                                                                    \n    \
+      \                                                                          \
+      \      <input id=&amp;amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;amp;quot;\
+      \ type=&amp;amp;quot;hidden&amp;amp;quot; value=&amp;amp;quot;<i style=&amp;amp;amp;quot;color:\
+      \ #c8c8c8;&amp;amp;amp;quot;>No description provided.</i>&amp;amp;quot;>&amp;quot;><input\
+      \ id=&amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;quot;\
+      \ type=&amp;quot;hidden&amp;quot; value=&amp;quot;<i style=&amp;amp;quot;color:\
+      \ #c8c8c8;&amp;amp;quot;>No description provided.</i>\n                    \
+      \                                                                    \n    \
+      \                                                                          \
+      \      <input id=&amp;amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;amp;quot;\
+      \ type=&amp;amp;quot;hidden&amp;amp;quot; value=&amp;amp;quot;<i style=&amp;amp;amp;quot;color:\
+      \ #c8c8c8;&amp;amp;amp;quot;>No description provided.</i>&amp;amp;quot;><input\
+      \ id=&amp;amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;amp;quot;\
+      \ type=&amp;amp;quot;hidden&amp;amp;quot; value=&amp;amp;quot;<i style=&amp;amp;amp;quot;color:\
+      \ #c8c8c8;&amp;amp;amp;quot;>No description provided.</i>\n                \
+      \                                                                        \n\
+      \                                                                          \
+      \          <input id=&amp;amp;amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;amp;amp;quot;\
+      \ type=&amp;amp;amp;quot;hidden&amp;amp;amp;quot; value=&amp;amp;amp;quot;<i\
+      \ style=&amp;amp;amp;amp;quot;color: #c8c8c8;&amp;amp;amp;amp;quot;>No description\
+      \ provided.</i>&amp;amp;amp;quot;>&amp;amp;quot;>&amp;quot;><input id=&amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;quot;\
+      \ type=&amp;quot;hidden&amp;quot; value=&amp;quot;<i style=&amp;amp;quot;color:\
+      \ #c8c8c8;&amp;amp;quot;>No description provided.</i>\n                    \
+      \                                                                    \n    \
+      \                                                                          \
+      \      <input id=&amp;amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;amp;quot;\
+      \ type=&amp;amp;quot;hidden&amp;amp;quot; value=&amp;amp;quot;<i style=&amp;amp;amp;quot;color:\
+      \ #c8c8c8;&amp;amp;amp;quot;>No description provided.</i>&amp;amp;quot;><input\
+      \ id=&amp;amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;amp;quot;\
+      \ type=&amp;amp;quot;hidden&amp;amp;quot; value=&amp;amp;quot;<i style=&amp;amp;amp;quot;color:\
+      \ #c8c8c8;&amp;amp;amp;quot;>No description provided.</i>\n                \
+      \                                                                        \n\
+      \                                                                          \
+      \          <input id=&amp;amp;amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;amp;amp;quot;\
+      \ type=&amp;amp;amp;quot;hidden&amp;amp;amp;quot; value=&amp;amp;amp;quot;<i\
+      \ style=&amp;amp;amp;amp;quot;color: #c8c8c8;&amp;amp;amp;amp;quot;>No description\
+      \ provided.</i>&amp;amp;amp;quot;>&amp;amp;quot;><input id=&amp;amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;amp;quot;\
+      \ type=&amp;amp;quot;hidden&amp;amp;quot; value=&amp;amp;quot;<i style=&amp;amp;amp;quot;color:\
+      \ #c8c8c8;&amp;amp;amp;quot;>No description provided.</i>\n                \
+      \                                                                        \n\
+      \                                                                          \
+      \          <input id=&amp;amp;amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;amp;amp;quot;\
+      \ type=&amp;amp;amp;quot;hidden&amp;amp;amp;quot; value=&amp;amp;amp;quot;<i\
+      \ style=&amp;amp;amp;amp;quot;color: #c8c8c8;&amp;amp;amp;amp;quot;>No description\
+      \ provided.</i>&amp;amp;amp;quot;><input id=&amp;amp;amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;amp;amp;quot;\
+      \ type=&amp;amp;amp;quot;hidden&amp;amp;amp;quot; value=&amp;amp;amp;quot;<i\
+      \ style=&amp;amp;amp;amp;quot;color: #c8c8c8;&amp;amp;amp;amp;quot;>No description\
+      \ provided.</i>\n                                                          \
+      \                              \n                                          \
+      \                                          <input id=&amp;amp;amp;amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;amp;amp;amp;quot;\
+      \ type=&amp;amp;amp;amp;quot;hidden&amp;amp;amp;amp;quot; value=&amp;amp;amp;amp;quot;<i\
+      \ style=&amp;amp;amp;amp;amp;quot;color: #c8c8c8;&amp;amp;amp;amp;amp;quot;>No\
+      \ description provided.</i>&amp;amp;amp;amp;quot;>&amp;amp;amp;quot;>&amp;amp;quot;>&amp;quot;>&quot;>\"\
+      ><input id=\"space3_document_stepDataList.step-1.item.description_hidden\" type=\"\
+      hidden\" value=\"<i style=&quot;color: #c8c8c8;&quot;>No description provided.</i>\n\
+      \                                                                          \
+      \              \n                                                          \
+      \                          <input id=&quot;space3_document_stepDataList.step-1.item.description_hidden&quot;\
+      \ type=&quot;hidden&quot; value=&quot;<i style=&amp;quot;color: #c8c8c8;&amp;quot;>No\
+      \ description provided.</i>&quot;><input id=&quot;space3_document_stepDataList.step-1.item.description_hidden&quot;\
+      \ type=&quot;hidden&quot; value=&quot;<i style=&amp;quot;color: #c8c8c8;&amp;quot;>No\
+      \ description provided.</i>\n                                              \
+      \                                          \n                              \
+      \                                                      <input id=&amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;quot;\
+      \ type=&amp;quot;hidden&amp;quot; value=&amp;quot;<i style=&amp;amp;quot;color:\
+      \ #c8c8c8;&amp;amp;quot;>No description provided.</i>&amp;quot;>&quot;><input\
+      \ id=&quot;space3_document_stepDataList.step-1.item.description_hidden&quot;\
+      \ type=&quot;hidden&quot; value=&quot;<i style=&amp;quot;color: #c8c8c8;&amp;quot;>No\
+      \ description provided.</i>\n                                              \
+      \                                          \n                              \
+      \                                                      <input id=&amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;quot;\
+      \ type=&amp;quot;hidden&amp;quot; value=&amp;quot;<i style=&amp;amp;quot;color:\
+      \ #c8c8c8;&amp;amp;quot;>No description provided.</i>&amp;quot;><input id=&amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;quot;\
+      \ type=&amp;quot;hidden&amp;quot; value=&amp;quot;<i style=&amp;amp;quot;color:\
+      \ #c8c8c8;&amp;amp;quot;>No description provided.</i>\n                    \
+      \                                                                    \n    \
+      \                                                                          \
+      \      <input id=&amp;amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;amp;quot;\
+      \ type=&amp;amp;quot;hidden&amp;amp;quot; value=&amp;amp;quot;<i style=&amp;amp;amp;quot;color:\
+      \ #c8c8c8;&amp;amp;amp;quot;>No description provided.</i>&amp;amp;quot;>&amp;quot;>&quot;><input\
+      \ id=&quot;space3_document_stepDataList.step-1.item.description_hidden&quot;\
+      \ type=&quot;hidden&quot; value=&quot;<i style=&amp;quot;color: #c8c8c8;&amp;quot;>No\
+      \ description provided.</i>\n                                              \
+      \                                          \n                              \
+      \                                                      <input id=&amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;quot;\
+      \ type=&amp;quot;hidden&amp;quot; value=&amp;quot;<i style=&amp;amp;quot;color:\
+      \ #c8c8c8;&amp;amp;quot;>No description provided.</i>&amp;quot;><input id=&amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;quot;\
+      \ type=&amp;quot;hidden&amp;quot; value=&amp;quot;<i style=&amp;amp;quot;color:\
+      \ #c8c8c8;&amp;amp;quot;>No description provided.</i>\n                    \
+      \                                                                    \n    \
+      \                                                                          \
+      \      <input id=&amp;amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;amp;quot;\
+      \ type=&amp;amp;quot;hidden&amp;amp;quot; value=&amp;amp;quot;<i style=&amp;amp;amp;quot;color:\
+      \ #c8c8c8;&amp;amp;amp;quot;>No description provided.</i>&amp;amp;quot;>&amp;quot;><input\
+      \ id=&amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;quot;\
+      \ type=&amp;quot;hidden&amp;quot; value=&amp;quot;<i style=&amp;amp;quot;color:\
+      \ #c8c8c8;&amp;amp;quot;>No description provided.</i>\n                    \
+      \                                                                    \n    \
+      \                                                                          \
+      \      <input id=&amp;amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;amp;quot;\
+      \ type=&amp;amp;quot;hidden&amp;amp;quot; value=&amp;amp;quot;<i style=&amp;amp;amp;quot;color:\
+      \ #c8c8c8;&amp;amp;amp;quot;>No description provided.</i>&amp;amp;quot;><input\
+      \ id=&amp;amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;amp;quot;\
+      \ type=&amp;amp;quot;hidden&amp;amp;quot; value=&amp;amp;quot;<i style=&amp;amp;amp;quot;color:\
+      \ #c8c8c8;&amp;amp;amp;quot;>No description provided.</i>\n                \
+      \                                                                        \n\
+      \                                                                          \
+      \          <input id=&amp;amp;amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;amp;amp;quot;\
+      \ type=&amp;amp;amp;quot;hidden&amp;amp;amp;quot; value=&amp;amp;amp;quot;<i\
+      \ style=&amp;amp;amp;amp;quot;color: #c8c8c8;&amp;amp;amp;amp;quot;>No description\
+      \ provided.</i>&amp;amp;amp;quot;>&amp;amp;quot;>&amp;quot;>&quot;><input id=&quot;space3_document_stepDataList.step-1.item.description_hidden&quot;\
+      \ type=&quot;hidden&quot; value=&quot;<i style=&amp;quot;color: #c8c8c8;&amp;quot;>No\
+      \ description provided.</i>\n                                              \
+      \                                          \n                              \
+      \                                                      <input id=&amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;quot;\
+      \ type=&amp;quot;hidden&amp;quot; value=&amp;quot;<i style=&amp;amp;quot;color:\
+      \ #c8c8c8;&amp;amp;quot;>No description provided.</i>&amp;quot;><input id=&amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;quot;\
+      \ type=&amp;quot;hidden&amp;quot; value=&amp;quot;<i style=&amp;amp;quot;color:\
+      \ #c8c8c8;&amp;amp;quot;>No description provided.</i>\n                    \
+      \                                                                    \n    \
+      \                                                                          \
+      \      <input id=&amp;amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;amp;quot;\
+      \ type=&amp;amp;quot;hidden&amp;amp;quot; value=&amp;amp;quot;<i style=&amp;amp;amp;quot;color:\
+      \ #c8c8c8;&amp;amp;amp;quot;>No description provided.</i>&amp;amp;quot;>&amp;quot;><input\
+      \ id=&amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;quot;\
+      \ type=&amp;quot;hidden&amp;quot; value=&amp;quot;<i style=&amp;amp;quot;color:\
+      \ #c8c8c8;&amp;amp;quot;>No description provided.</i>\n                    \
+      \                                                                    \n    \
+      \                                                                          \
+      \      <input id=&amp;amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;amp;quot;\
+      \ type=&amp;amp;quot;hidden&amp;amp;quot; value=&amp;amp;quot;<i style=&amp;amp;amp;quot;color:\
+      \ #c8c8c8;&amp;amp;amp;quot;>No description provided.</i>&amp;amp;quot;><input\
+      \ id=&amp;amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;amp;quot;\
+      \ type=&amp;amp;quot;hidden&amp;amp;quot; value=&amp;amp;quot;<i style=&amp;amp;amp;quot;color:\
+      \ #c8c8c8;&amp;amp;amp;quot;>No description provided.</i>\n                \
+      \                                                                        \n\
+      \                                                                          \
+      \          <input id=&amp;amp;amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;amp;amp;quot;\
+      \ type=&amp;amp;amp;quot;hidden&amp;amp;amp;quot; value=&amp;amp;amp;quot;<i\
+      \ style=&amp;amp;amp;amp;quot;color: #c8c8c8;&amp;amp;amp;amp;quot;>No description\
+      \ provided.</i>&amp;amp;amp;quot;>&amp;amp;quot;>&amp;quot;><input id=&amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;quot;\
+      \ type=&amp;quot;hidden&amp;quot; value=&amp;quot;<i style=&amp;amp;quot;color:\
+      \ #c8c8c8;&amp;amp;quot;>No description provided.</i>\n                    \
+      \                                                                    \n    \
+      \                                                                          \
+      \      <input id=&amp;amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;amp;quot;\
+      \ type=&amp;amp;quot;hidden&amp;amp;quot; value=&amp;amp;quot;<i style=&amp;amp;amp;quot;color:\
+      \ #c8c8c8;&amp;amp;amp;quot;>No description provided.</i>&amp;amp;quot;><input\
+      \ id=&amp;amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;amp;quot;\
+      \ type=&amp;amp;quot;hidden&amp;amp;quot; value=&amp;amp;quot;<i style=&amp;amp;amp;quot;color:\
+      \ #c8c8c8;&amp;amp;amp;quot;>No description provided.</i>\n                \
+      \                                                                        \n\
+      \                                                                          \
+      \          <input id=&amp;amp;amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;amp;amp;quot;\
+      \ type=&amp;amp;amp;quot;hidden&amp;amp;amp;quot; value=&amp;amp;amp;quot;<i\
+      \ style=&amp;amp;amp;amp;quot;color: #c8c8c8;&amp;amp;amp;amp;quot;>No description\
+      \ provided.</i>&amp;amp;amp;quot;>&amp;amp;quot;><input id=&amp;amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;amp;quot;\
+      \ type=&amp;amp;quot;hidden&amp;amp;quot; value=&amp;amp;quot;<i style=&amp;amp;amp;quot;color:\
+      \ #c8c8c8;&amp;amp;amp;quot;>No description provided.</i>\n                \
+      \                                                                        \n\
+      \                                                                          \
+      \          <input id=&amp;amp;amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;amp;amp;quot;\
+      \ type=&amp;amp;amp;quot;hidden&amp;amp;amp;quot; value=&amp;amp;amp;quot;<i\
+      \ style=&amp;amp;amp;amp;quot;color: #c8c8c8;&amp;amp;amp;amp;quot;>No description\
+      \ provided.</i>&amp;amp;amp;quot;><input id=&amp;amp;amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;amp;amp;quot;\
+      \ type=&amp;amp;amp;quot;hidden&amp;amp;amp;quot; value=&amp;amp;amp;quot;<i\
+      \ style=&amp;amp;amp;amp;quot;color: #c8c8c8;&amp;amp;amp;amp;quot;>No description\
+      \ provided.</i>\n                                                          \
+      \                              \n                                          \
+      \                                          <input id=&amp;amp;amp;amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;amp;amp;amp;quot;\
+      \ type=&amp;amp;amp;amp;quot;hidden&amp;amp;amp;amp;quot; value=&amp;amp;amp;amp;quot;<i\
+      \ style=&amp;amp;amp;amp;amp;quot;color: #c8c8c8;&amp;amp;amp;amp;amp;quot;>No\
+      \ description provided.</i>&amp;amp;amp;amp;quot;>&amp;amp;amp;quot;>&amp;amp;quot;>&amp;quot;>&quot;><input\
+      \ id=&quot;space3_document_stepDataList.step-1.item.description_hidden&quot;\
+      \ type=&quot;hidden&quot; value=&quot;<i style=&amp;quot;color: #c8c8c8;&amp;quot;>No\
+      \ description provided.</i>\n                                              \
+      \                                          \n                              \
+      \                                                      <input id=&amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;quot;\
+      \ type=&amp;quot;hidden&amp;quot; value=&amp;quot;<i style=&amp;amp;quot;color:\
+      \ #c8c8c8;&amp;amp;quot;>No description provided.</i>&amp;quot;><input id=&amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;quot;\
+      \ type=&amp;quot;hidden&amp;quot; value=&amp;quot;<i style=&amp;amp;quot;color:\
+      \ #c8c8c8;&amp;amp;quot;>No description provided.</i>\n                    \
+      \                                                                    \n    \
+      \                                                                          \
+      \      <input id=&amp;amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;amp;quot;\
+      \ type=&amp;amp;quot;hidden&amp;amp;quot; value=&amp;amp;quot;<i style=&amp;amp;amp;quot;color:\
+      \ #c8c8c8;&amp;amp;amp;quot;>No description provided.</i>&amp;amp;quot;>&amp;quot;><input\
+      \ id=&amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;quot;\
+      \ type=&amp;quot;hidden&amp;quot; value=&amp;quot;<i style=&amp;amp;quot;color:\
+      \ #c8c8c8;&amp;amp;quot;>No description provided.</i>\n                    \
+      \                                                                    \n    \
+      \                                                                          \
+      \      <input id=&amp;amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;amp;quot;\
+      \ type=&amp;amp;quot;hidden&amp;amp;quot; value=&amp;amp;quot;<i style=&amp;amp;amp;quot;color:\
+      \ #c8c8c8;&amp;amp;amp;quot;>No description provided.</i>&amp;amp;quot;><input\
+      \ id=&amp;amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;amp;quot;\
+      \ type=&amp;amp;quot;hidden&amp;amp;quot; value=&amp;amp;quot;<i style=&amp;amp;amp;quot;color:\
+      \ #c8c8c8;&amp;amp;amp;quot;>No description provided.</i>\n                \
+      \                                                                        \n\
+      \                                                                          \
+      \          <input id=&amp;amp;amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;amp;amp;quot;\
+      \ type=&amp;amp;amp;quot;hidden&amp;amp;amp;quot; value=&amp;amp;amp;quot;<i\
+      \ style=&amp;amp;amp;amp;quot;color: #c8c8c8;&amp;amp;amp;amp;quot;>No description\
+      \ provided.</i>&amp;amp;amp;quot;>&amp;amp;quot;>&amp;quot;><input id=&amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;quot;\
+      \ type=&amp;quot;hidden&amp;quot; value=&amp;quot;<i style=&amp;amp;quot;color:\
+      \ #c8c8c8;&amp;amp;quot;>No description provided.</i>\n                    \
+      \                                                                    \n    \
+      \                                                                          \
+      \      <input id=&amp;amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;amp;quot;\
+      \ type=&amp;amp;quot;hidden&amp;amp;quot; value=&amp;amp;quot;<i style=&amp;amp;amp;quot;color:\
+      \ #c8c8c8;&amp;amp;amp;quot;>No description provided.</i>&amp;amp;quot;><input\
+      \ id=&amp;amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;amp;quot;\
+      \ type=&amp;amp;quot;hidden&amp;amp;quot; value=&amp;amp;quot;<i style=&amp;amp;amp;quot;color:\
+      \ #c8c8c8;&amp;amp;amp;quot;>No description provided.</i>\n                \
+      \                                                                        \n\
+      \                                                                          \
+      \          <input id=&amp;amp;amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;amp;amp;quot;\
+      \ type=&amp;amp;amp;quot;hidden&amp;amp;amp;quot; value=&amp;amp;amp;quot;<i\
+      \ style=&amp;amp;amp;amp;quot;color: #c8c8c8;&amp;amp;amp;amp;quot;>No description\
+      \ provided.</i>&amp;amp;amp;quot;>&amp;amp;quot;><input id=&amp;amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;amp;quot;\
+      \ type=&amp;amp;quot;hidden&amp;amp;quot; value=&amp;amp;quot;<i style=&amp;amp;amp;quot;color:\
+      \ #c8c8c8;&amp;amp;amp;quot;>No description provided.</i>\n                \
+      \                                                                        \n\
+      \                                                                          \
+      \          <input id=&amp;amp;amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;amp;amp;quot;\
+      \ type=&amp;amp;amp;quot;hidden&amp;amp;amp;quot; value=&amp;amp;amp;quot;<i\
+      \ style=&amp;amp;amp;amp;quot;color: #c8c8c8;&amp;amp;amp;amp;quot;>No description\
+      \ provided.</i>&amp;amp;amp;quot;><input id=&amp;amp;amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;amp;amp;quot;\
+      \ type=&amp;amp;amp;quot;hidden&amp;amp;amp;quot; value=&amp;amp;amp;quot;<i\
+      \ style=&amp;amp;amp;amp;quot;color: #c8c8c8;&amp;amp;amp;amp;quot;>No description\
+      \ provided.</i>\n                                                          \
+      \                              \n                                          \
+      \                                          <input id=&amp;amp;amp;amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;amp;amp;amp;quot;\
+      \ type=&amp;amp;amp;amp;quot;hidden&amp;amp;amp;amp;quot; value=&amp;amp;amp;amp;quot;<i\
+      \ style=&amp;amp;amp;amp;amp;quot;color: #c8c8c8;&amp;amp;amp;amp;amp;quot;>No\
+      \ description provided.</i>&amp;amp;amp;amp;quot;>&amp;amp;amp;quot;>&amp;amp;quot;>&amp;quot;><input\
+      \ id=&amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;quot;\
+      \ type=&amp;quot;hidden&amp;quot; value=&amp;quot;<i style=&amp;amp;quot;color:\
+      \ #c8c8c8;&amp;amp;quot;>No description provided.</i>\n                    \
+      \                                                                    \n    \
+      \                                                                          \
+      \      <input id=&amp;amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;amp;quot;\
+      \ type=&amp;amp;quot;hidden&amp;amp;quot; value=&amp;amp;quot;<i style=&amp;amp;amp;quot;color:\
+      \ #c8c8c8;&amp;amp;amp;quot;>No description provided.</i>&amp;amp;quot;><input\
+      \ id=&amp;amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;amp;quot;\
+      \ type=&amp;amp;quot;hidden&amp;amp;quot; value=&amp;amp;quot;<i style=&amp;amp;amp;quot;color:\
+      \ #c8c8c8;&amp;amp;amp;quot;>No description provided.</i>\n                \
+      \                                                                        \n\
+      \                                                                          \
+      \          <input id=&amp;amp;amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;amp;amp;quot;\
+      \ type=&amp;amp;amp;quot;hidden&amp;amp;amp;quot; value=&amp;amp;amp;quot;<i\
+      \ style=&amp;amp;amp;amp;quot;color: #c8c8c8;&amp;amp;amp;amp;quot;>No description\
+      \ provided.</i>&amp;amp;amp;quot;>&amp;amp;quot;><input id=&amp;amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;amp;quot;\
+      \ type=&amp;amp;quot;hidden&amp;amp;quot; value=&amp;amp;quot;<i style=&amp;amp;amp;quot;color:\
+      \ #c8c8c8;&amp;amp;amp;quot;>No description provided.</i>\n                \
+      \                                                                        \n\
+      \                                                                          \
+      \          <input id=&amp;amp;amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;amp;amp;quot;\
+      \ type=&amp;amp;amp;quot;hidden&amp;amp;amp;quot; value=&amp;amp;amp;quot;<i\
+      \ style=&amp;amp;amp;amp;quot;color: #c8c8c8;&amp;amp;amp;amp;quot;>No description\
+      \ provided.</i>&amp;amp;amp;quot;><input id=&amp;amp;amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;amp;amp;quot;\
+      \ type=&amp;amp;amp;quot;hidden&amp;amp;amp;quot; value=&amp;amp;amp;quot;<i\
+      \ style=&amp;amp;amp;amp;quot;color: #c8c8c8;&amp;amp;amp;amp;quot;>No description\
+      \ provided.</i>\n                                                          \
+      \                              \n                                          \
+      \                                          <input id=&amp;amp;amp;amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;amp;amp;amp;quot;\
+      \ type=&amp;amp;amp;amp;quot;hidden&amp;amp;amp;amp;quot; value=&amp;amp;amp;amp;quot;<i\
+      \ style=&amp;amp;amp;amp;amp;quot;color: #c8c8c8;&amp;amp;amp;amp;amp;quot;>No\
+      \ description provided.</i>&amp;amp;amp;amp;quot;>&amp;amp;amp;quot;>&amp;amp;quot;><input\
+      \ id=&amp;amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;amp;quot;\
+      \ type=&amp;amp;quot;hidden&amp;amp;quot; value=&amp;amp;quot;<i style=&amp;amp;amp;quot;color:\
+      \ #c8c8c8;&amp;amp;amp;quot;>No description provided.</i>\n                \
+      \                                                                        \n\
+      \                                                                          \
+      \          <input id=&amp;amp;amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;amp;amp;quot;\
+      \ type=&amp;amp;amp;quot;hidden&amp;amp;amp;quot; value=&amp;amp;amp;quot;<i\
+      \ style=&amp;amp;amp;amp;quot;color: #c8c8c8;&amp;amp;amp;amp;quot;>No description\
+      \ provided.</i>&amp;amp;amp;quot;><input id=&amp;amp;amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;amp;amp;quot;\
+      \ type=&amp;amp;amp;quot;hidden&amp;amp;amp;quot; value=&amp;amp;amp;quot;<i\
+      \ style=&amp;amp;amp;amp;quot;color: #c8c8c8;&amp;amp;amp;amp;quot;>No description\
+      \ provided.</i>\n                                                          \
+      \                              \n                                          \
+      \                                          <input id=&amp;amp;amp;amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;amp;amp;amp;quot;\
+      \ type=&amp;amp;amp;amp;quot;hidden&amp;amp;amp;amp;quot; value=&amp;amp;amp;amp;quot;<i\
+      \ style=&amp;amp;amp;amp;amp;quot;color: #c8c8c8;&amp;amp;amp;amp;amp;quot;>No\
+      \ description provided.</i>&amp;amp;amp;amp;quot;>&amp;amp;amp;quot;><input\
+      \ id=&amp;amp;amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;amp;amp;quot;\
+      \ type=&amp;amp;amp;quot;hidden&amp;amp;amp;quot; value=&amp;amp;amp;quot;<i\
+      \ style=&amp;amp;amp;amp;quot;color: #c8c8c8;&amp;amp;amp;amp;quot;>No description\
+      \ provided.</i>\n                                                          \
+      \                              \n                                          \
+      \                                          <input id=&amp;amp;amp;amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;amp;amp;amp;quot;\
+      \ type=&amp;amp;amp;amp;quot;hidden&amp;amp;amp;amp;quot; value=&amp;amp;amp;amp;quot;<i\
+      \ style=&amp;amp;amp;amp;amp;quot;color: #c8c8c8;&amp;amp;amp;amp;amp;quot;>No\
+      \ description provided.</i>&amp;amp;amp;amp;quot;><input id=&amp;amp;amp;amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;amp;amp;amp;quot;\
+      \ type=&amp;amp;amp;amp;quot;hidden&amp;amp;amp;amp;quot; value=&amp;amp;amp;amp;quot;<i\
+      \ style=&amp;amp;amp;amp;amp;quot;color: #c8c8c8;&amp;amp;amp;amp;amp;quot;>No\
+      \ description provided.</i>\n                                              \
+      \                                          \n                              \
+      \                                                      <input id=&amp;amp;amp;amp;amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;amp;amp;amp;amp;quot;\
+      \ type=&amp;amp;amp;amp;amp;quot;hidden&amp;amp;amp;amp;amp;quot; value=&amp;amp;amp;amp;amp;quot;<i\
+      \ style=&amp;amp;amp;amp;amp;amp;quot;color: #c8c8c8;&amp;amp;amp;amp;amp;amp;quot;>No\
+      \ description provided.</i>&amp;amp;amp;amp;amp;quot;>&amp;amp;amp;amp;quot;>&amp;amp;amp;quot;>&amp;amp;quot;>&amp;quot;>&quot;>\"\
+      >\n                                                                        \
+      \                \n                                                        \
+      \                            <input id=\"space3_document_stepDataList.step-1.item.description_hidden\"\
+      \ type=\"hidden\" value=\"<i style=&quot;color: #c8c8c8;&quot;>No description\
+      \ provided.</i>\n                                                          \
+      \                              \n                                          \
+      \                                          <input id=&quot;space3_document_stepDataList.step-1.item.description_hidden&quot;\
+      \ type=&quot;hidden&quot; value=&quot;<i style=&amp;quot;color: #c8c8c8;&amp;quot;>No\
+      \ description provided.</i>&quot;><input id=&quot;space3_document_stepDataList.step-1.item.description_hidden&quot;\
+      \ type=&quot;hidden&quot; value=&quot;<i style=&amp;quot;color: #c8c8c8;&amp;quot;>No\
+      \ description provided.</i>\n                                              \
+      \                                          \n                              \
+      \                                                      <input id=&amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;quot;\
+      \ type=&amp;quot;hidden&amp;quot; value=&amp;quot;<i style=&amp;amp;quot;color:\
+      \ #c8c8c8;&amp;amp;quot;>No description provided.</i>&amp;quot;>&quot;><input\
+      \ id=&quot;space3_document_stepDataList.step-1.item.description_hidden&quot;\
+      \ type=&quot;hidden&quot; value=&quot;<i style=&amp;quot;color: #c8c8c8;&amp;quot;>No\
+      \ description provided.</i>\n                                              \
+      \                                          \n                              \
+      \                                                      <input id=&amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;quot;\
+      \ type=&amp;quot;hidden&amp;quot; value=&amp;quot;<i style=&amp;amp;quot;color:\
+      \ #c8c8c8;&amp;amp;quot;>No description provided.</i>&amp;quot;><input id=&amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;quot;\
+      \ type=&amp;quot;hidden&amp;quot; value=&amp;quot;<i style=&amp;amp;quot;color:\
+      \ #c8c8c8;&amp;amp;quot;>No description provided.</i>\n                    \
+      \                                                                    \n    \
+      \                                                                          \
+      \      <input id=&amp;amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;amp;quot;\
+      \ type=&amp;amp;quot;hidden&amp;amp;quot; value=&amp;amp;quot;<i style=&amp;amp;amp;quot;color:\
+      \ #c8c8c8;&amp;amp;amp;quot;>No description provided.</i>&amp;amp;quot;>&amp;quot;>&quot;><input\
+      \ id=&quot;space3_document_stepDataList.step-1.item.description_hidden&quot;\
+      \ type=&quot;hidden&quot; value=&quot;<i style=&amp;quot;color: #c8c8c8;&amp;quot;>No\
+      \ description provided.</i>\n                                              \
+      \                                          \n                              \
+      \                                                      <input id=&amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;quot;\
+      \ type=&amp;quot;hidden&amp;quot; value=&amp;quot;<i style=&amp;amp;quot;color:\
+      \ #c8c8c8;&amp;amp;quot;>No description provided.</i>&amp;quot;><input id=&amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;quot;\
+      \ type=&amp;quot;hidden&amp;quot; value=&amp;quot;<i style=&amp;amp;quot;color:\
+      \ #c8c8c8;&amp;amp;quot;>No description provided.</i>\n                    \
+      \                                                                    \n    \
+      \                                                                          \
+      \      <input id=&amp;amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;amp;quot;\
+      \ type=&amp;amp;quot;hidden&amp;amp;quot; value=&amp;amp;quot;<i style=&amp;amp;amp;quot;color:\
+      \ #c8c8c8;&amp;amp;amp;quot;>No description provided.</i>&amp;amp;quot;>&amp;quot;><input\
+      \ id=&amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;quot;\
+      \ type=&amp;quot;hidden&amp;quot; value=&amp;quot;<i style=&amp;amp;quot;color:\
+      \ #c8c8c8;&amp;amp;quot;>No description provided.</i>\n                    \
+      \                                                                    \n    \
+      \                                                                          \
+      \      <input id=&amp;amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;amp;quot;\
+      \ type=&amp;amp;quot;hidden&amp;amp;quot; value=&amp;amp;quot;<i style=&amp;amp;amp;quot;color:\
+      \ #c8c8c8;&amp;amp;amp;quot;>No description provided.</i>&amp;amp;quot;><input\
+      \ id=&amp;amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;amp;quot;\
+      \ type=&amp;amp;quot;hidden&amp;amp;quot; value=&amp;amp;quot;<i style=&amp;amp;amp;quot;color:\
+      \ #c8c8c8;&amp;amp;amp;quot;>No description provided.</i>\n                \
+      \                                                                        \n\
+      \                                                                          \
+      \          <input id=&amp;amp;amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;amp;amp;quot;\
+      \ type=&amp;amp;amp;quot;hidden&amp;amp;amp;quot; value=&amp;amp;amp;quot;<i\
+      \ style=&amp;amp;amp;amp;quot;color: #c8c8c8;&amp;amp;amp;amp;quot;>No description\
+      \ provided.</i>&amp;amp;amp;quot;>&amp;amp;quot;>&amp;quot;>&quot;><input id=&quot;space3_document_stepDataList.step-1.item.description_hidden&quot;\
+      \ type=&quot;hidden&quot; value=&quot;<i style=&amp;quot;color: #c8c8c8;&amp;quot;>No\
+      \ description provided.</i>\n                                              \
+      \                                          \n                              \
+      \                                                      <input id=&amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;quot;\
+      \ type=&amp;quot;hidden&amp;quot; value=&amp;quot;<i style=&amp;amp;quot;color:\
+      \ #c8c8c8;&amp;amp;quot;>No description provided.</i>&amp;quot;><input id=&amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;quot;\
+      \ type=&amp;quot;hidden&amp;quot; value=&amp;quot;<i style=&amp;amp;quot;color:\
+      \ #c8c8c8;&amp;amp;quot;>No description provided.</i>\n                    \
+      \                                                                    \n    \
+      \                                                                          \
+      \      <input id=&amp;amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;amp;quot;\
+      \ type=&amp;amp;quot;hidden&amp;amp;quot; value=&amp;amp;quot;<i style=&amp;amp;amp;quot;color:\
+      \ #c8c8c8;&amp;amp;amp;quot;>No description provided.</i>&amp;amp;quot;>&amp;quot;><input\
+      \ id=&amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;quot;\
+      \ type=&amp;quot;hidden&amp;quot; value=&amp;quot;<i style=&amp;amp;quot;color:\
+      \ #c8c8c8;&amp;amp;quot;>No description provided.</i>\n                    \
+      \                                                                    \n    \
+      \                                                                          \
+      \      <input id=&amp;amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;amp;quot;\
+      \ type=&amp;amp;quot;hidden&amp;amp;quot; value=&amp;amp;quot;<i style=&amp;amp;amp;quot;color:\
+      \ #c8c8c8;&amp;amp;amp;quot;>No description provided.</i>&amp;amp;quot;><input\
+      \ id=&amp;amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;amp;quot;\
+      \ type=&amp;amp;quot;hidden&amp;amp;quot; value=&amp;amp;quot;<i style=&amp;amp;amp;quot;color:\
+      \ #c8c8c8;&amp;amp;amp;quot;>No description provided.</i>\n                \
+      \                                                                        \n\
+      \                                                                          \
+      \          <input id=&amp;amp;amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;amp;amp;quot;\
+      \ type=&amp;amp;amp;quot;hidden&amp;amp;amp;quot; value=&amp;amp;amp;quot;<i\
+      \ style=&amp;amp;amp;amp;quot;color: #c8c8c8;&amp;amp;amp;amp;quot;>No description\
+      \ provided.</i>&amp;amp;amp;quot;>&amp;amp;quot;>&amp;quot;><input id=&amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;quot;\
+      \ type=&amp;quot;hidden&amp;quot; value=&amp;quot;<i style=&amp;amp;quot;color:\
+      \ #c8c8c8;&amp;amp;quot;>No description provided.</i>\n                    \
+      \                                                                    \n    \
+      \                                                                          \
+      \      <input id=&amp;amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;amp;quot;\
+      \ type=&amp;amp;quot;hidden&amp;amp;quot; value=&amp;amp;quot;<i style=&amp;amp;amp;quot;color:\
+      \ #c8c8c8;&amp;amp;amp;quot;>No description provided.</i>&amp;amp;quot;><input\
+      \ id=&amp;amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;amp;quot;\
+      \ type=&amp;amp;quot;hidden&amp;amp;quot; value=&amp;amp;quot;<i style=&amp;amp;amp;quot;color:\
+      \ #c8c8c8;&amp;amp;amp;quot;>No description provided.</i>\n                \
+      \                                                                        \n\
+      \                                                                          \
+      \          <input id=&amp;amp;amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;amp;amp;quot;\
+      \ type=&amp;amp;amp;quot;hidden&amp;amp;amp;quot; value=&amp;amp;amp;quot;<i\
+      \ style=&amp;amp;amp;amp;quot;color: #c8c8c8;&amp;amp;amp;amp;quot;>No description\
+      \ provided.</i>&amp;amp;amp;quot;>&amp;amp;quot;><input id=&amp;amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;amp;quot;\
+      \ type=&amp;amp;quot;hidden&amp;amp;quot; value=&amp;amp;quot;<i style=&amp;amp;amp;quot;color:\
+      \ #c8c8c8;&amp;amp;amp;quot;>No description provided.</i>\n                \
+      \                                                                        \n\
+      \                                                                          \
+      \          <input id=&amp;amp;amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;amp;amp;quot;\
+      \ type=&amp;amp;amp;quot;hidden&amp;amp;amp;quot; value=&amp;amp;amp;quot;<i\
+      \ style=&amp;amp;amp;amp;quot;color: #c8c8c8;&amp;amp;amp;amp;quot;>No description\
+      \ provided.</i>&amp;amp;amp;quot;><input id=&amp;amp;amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;amp;amp;quot;\
+      \ type=&amp;amp;amp;quot;hidden&amp;amp;amp;quot; value=&amp;amp;amp;quot;<i\
+      \ style=&amp;amp;amp;amp;quot;color: #c8c8c8;&amp;amp;amp;amp;quot;>No description\
+      \ provided.</i>\n                                                          \
+      \                              \n                                          \
+      \                                          <input id=&amp;amp;amp;amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;amp;amp;amp;quot;\
+      \ type=&amp;amp;amp;amp;quot;hidden&amp;amp;amp;amp;quot; value=&amp;amp;amp;amp;quot;<i\
+      \ style=&amp;amp;amp;amp;amp;quot;color: #c8c8c8;&amp;amp;amp;amp;amp;quot;>No\
+      \ description provided.</i>&amp;amp;amp;amp;quot;>&amp;amp;amp;quot;>&amp;amp;quot;>&amp;quot;>&quot;><input\
+      \ id=&quot;space3_document_stepDataList.step-1.item.description_hidden&quot;\
+      \ type=&quot;hidden&quot; value=&quot;<i style=&amp;quot;color: #c8c8c8;&amp;quot;>No\
+      \ description provided.</i>\n                                              \
+      \                                          \n                              \
+      \                                                      <input id=&amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;quot;\
+      \ type=&amp;quot;hidden&amp;quot; value=&amp;quot;<i style=&amp;amp;quot;color:\
+      \ #c8c8c8;&amp;amp;quot;>No description provided.</i>&amp;quot;><input id=&amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;quot;\
+      \ type=&amp;quot;hidden&amp;quot; value=&amp;quot;<i style=&amp;amp;quot;color:\
+      \ #c8c8c8;&amp;amp;quot;>No description provided.</i>\n                    \
+      \                                                                    \n    \
+      \                                                                          \
+      \      <input id=&amp;amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;amp;quot;\
+      \ type=&amp;amp;quot;hidden&amp;amp;quot; value=&amp;amp;quot;<i style=&amp;amp;amp;quot;color:\
+      \ #c8c8c8;&amp;amp;amp;quot;>No description provided.</i>&amp;amp;quot;>&amp;quot;><input\
+      \ id=&amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;quot;\
+      \ type=&amp;quot;hidden&amp;quot; value=&amp;quot;<i style=&amp;amp;quot;color:\
+      \ #c8c8c8;&amp;amp;quot;>No description provided.</i>\n                    \
+      \                                                                    \n    \
+      \                                                                          \
+      \      <input id=&amp;amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;amp;quot;\
+      \ type=&amp;amp;quot;hidden&amp;amp;quot; value=&amp;amp;quot;<i style=&amp;amp;amp;quot;color:\
+      \ #c8c8c8;&amp;amp;amp;quot;>No description provided.</i>&amp;amp;quot;><input\
+      \ id=&amp;amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;amp;quot;\
+      \ type=&amp;amp;quot;hidden&amp;amp;quot; value=&amp;amp;quot;<i style=&amp;amp;amp;quot;color:\
+      \ #c8c8c8;&amp;amp;amp;quot;>No description provided.</i>\n                \
+      \                                                                        \n\
+      \                                                                          \
+      \          <input id=&amp;amp;amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;amp;amp;quot;\
+      \ type=&amp;amp;amp;quot;hidden&amp;amp;amp;quot; value=&amp;amp;amp;quot;<i\
+      \ style=&amp;amp;amp;amp;quot;color: #c8c8c8;&amp;amp;amp;amp;quot;>No description\
+      \ provided.</i>&amp;amp;amp;quot;>&amp;amp;quot;>&amp;quot;><input id=&amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;quot;\
+      \ type=&amp;quot;hidden&amp;quot; value=&amp;quot;<i style=&amp;amp;quot;color:\
+      \ #c8c8c8;&amp;amp;quot;>No description provided.</i>\n                    \
+      \                                                                    \n    \
+      \                                                                          \
+      \      <input id=&amp;amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;amp;quot;\
+      \ type=&amp;amp;quot;hidden&amp;amp;quot; value=&amp;amp;quot;<i style=&amp;amp;amp;quot;color:\
+      \ #c8c8c8;&amp;amp;amp;quot;>No description provided.</i>&amp;amp;quot;><input\
+      \ id=&amp;amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;amp;quot;\
+      \ type=&amp;amp;quot;hidden&amp;amp;quot; value=&amp;amp;quot;<i style=&amp;amp;amp;quot;color:\
+      \ #c8c8c8;&amp;amp;amp;quot;>No description provided.</i>\n                \
+      \                                                                        \n\
+      \                                                                          \
+      \          <input id=&amp;amp;amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;amp;amp;quot;\
+      \ type=&amp;amp;amp;quot;hidden&amp;amp;amp;quot; value=&amp;amp;amp;quot;<i\
+      \ style=&amp;amp;amp;amp;quot;color: #c8c8c8;&amp;amp;amp;amp;quot;>No description\
+      \ provided.</i>&amp;amp;amp;quot;>&amp;amp;quot;><input id=&amp;amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;amp;quot;\
+      \ type=&amp;amp;quot;hidden&amp;amp;quot; value=&amp;amp;quot;<i style=&amp;amp;amp;quot;color:\
+      \ #c8c8c8;&amp;amp;amp;quot;>No description provided.</i>\n                \
+      \                                                                        \n\
+      \                                                                          \
+      \          <input id=&amp;amp;amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;amp;amp;quot;\
+      \ type=&amp;amp;amp;quot;hidden&amp;amp;amp;quot; value=&amp;amp;amp;quot;<i\
+      \ style=&amp;amp;amp;amp;quot;color: #c8c8c8;&amp;amp;amp;amp;quot;>No description\
+      \ provided.</i>&amp;amp;amp;quot;><input id=&amp;amp;amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;amp;amp;quot;\
+      \ type=&amp;amp;amp;quot;hidden&amp;amp;amp;quot; value=&amp;amp;amp;quot;<i\
+      \ style=&amp;amp;amp;amp;quot;color: #c8c8c8;&amp;amp;amp;amp;quot;>No description\
+      \ provided.</i>\n                                                          \
+      \                              \n                                          \
+      \                                          <input id=&amp;amp;amp;amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;amp;amp;amp;quot;\
+      \ type=&amp;amp;amp;amp;quot;hidden&amp;amp;amp;amp;quot; value=&amp;amp;amp;amp;quot;<i\
+      \ style=&amp;amp;amp;amp;amp;quot;color: #c8c8c8;&amp;amp;amp;amp;amp;quot;>No\
+      \ description provided.</i>&amp;amp;amp;amp;quot;>&amp;amp;amp;quot;>&amp;amp;quot;>&amp;quot;><input\
+      \ id=&amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;quot;\
+      \ type=&amp;quot;hidden&amp;quot; value=&amp;quot;<i style=&amp;amp;quot;color:\
+      \ #c8c8c8;&amp;amp;quot;>No description provided.</i>\n                    \
+      \                                                                    \n    \
+      \                                                                          \
+      \      <input id=&amp;amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;amp;quot;\
+      \ type=&amp;amp;quot;hidden&amp;amp;quot; value=&amp;amp;quot;<i style=&amp;amp;amp;quot;color:\
+      \ #c8c8c8;&amp;amp;amp;quot;>No description provided.</i>&amp;amp;quot;><input\
+      \ id=&amp;amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;amp;quot;\
+      \ type=&amp;amp;quot;hidden&amp;amp;quot; value=&amp;amp;quot;<i style=&amp;amp;amp;quot;color:\
+      \ #c8c8c8;&amp;amp;amp;quot;>No description provided.</i>\n                \
+      \                                                                        \n\
+      \                                                                          \
+      \          <input id=&amp;amp;amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;amp;amp;quot;\
+      \ type=&amp;amp;amp;quot;hidden&amp;amp;amp;quot; value=&amp;amp;amp;quot;<i\
+      \ style=&amp;amp;amp;amp;quot;color: #c8c8c8;&amp;amp;amp;amp;quot;>No description\
+      \ provided.</i>&amp;amp;amp;quot;>&amp;amp;quot;><input id=&amp;amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;amp;quot;\
+      \ type=&amp;amp;quot;hidden&amp;amp;quot; value=&amp;amp;quot;<i style=&amp;amp;amp;quot;color:\
+      \ #c8c8c8;&amp;amp;amp;quot;>No description provided.</i>\n                \
+      \                                                                        \n\
+      \                                                                          \
+      \          <input id=&amp;amp;amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;amp;amp;quot;\
+      \ type=&amp;amp;amp;quot;hidden&amp;amp;amp;quot; value=&amp;amp;amp;quot;<i\
+      \ style=&amp;amp;amp;amp;quot;color: #c8c8c8;&amp;amp;amp;amp;quot;>No description\
+      \ provided.</i>&amp;amp;amp;quot;><input id=&amp;amp;amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;amp;amp;quot;\
+      \ type=&amp;amp;amp;quot;hidden&amp;amp;amp;quot; value=&amp;amp;amp;quot;<i\
+      \ style=&amp;amp;amp;amp;quot;color: #c8c8c8;&amp;amp;amp;amp;quot;>No description\
+      \ provided.</i>\n                                                          \
+      \                              \n                                          \
+      \                                          <input id=&amp;amp;amp;amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;amp;amp;amp;quot;\
+      \ type=&amp;amp;amp;amp;quot;hidden&amp;amp;amp;amp;quot; value=&amp;amp;amp;amp;quot;<i\
+      \ style=&amp;amp;amp;amp;amp;quot;color: #c8c8c8;&amp;amp;amp;amp;amp;quot;>No\
+      \ description provided.</i>&amp;amp;amp;amp;quot;>&amp;amp;amp;quot;>&amp;amp;quot;><input\
+      \ id=&amp;amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;amp;quot;\
+      \ type=&amp;amp;quot;hidden&amp;amp;quot; value=&amp;amp;quot;<i style=&amp;amp;amp;quot;color:\
+      \ #c8c8c8;&amp;amp;amp;quot;>No description provided.</i>\n                \
+      \                                                                        \n\
+      \                                                                          \
+      \          <input id=&amp;amp;amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;amp;amp;quot;\
+      \ type=&amp;amp;amp;quot;hidden&amp;amp;amp;quot; value=&amp;amp;amp;quot;<i\
+      \ style=&amp;amp;amp;amp;quot;color: #c8c8c8;&amp;amp;amp;amp;quot;>No description\
+      \ provided.</i>&amp;amp;amp;quot;><input id=&amp;amp;amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;amp;amp;quot;\
+      \ type=&amp;amp;amp;quot;hidden&amp;amp;amp;quot; value=&amp;amp;amp;quot;<i\
+      \ style=&amp;amp;amp;amp;quot;color: #c8c8c8;&amp;amp;amp;amp;quot;>No description\
+      \ provided.</i>\n                                                          \
+      \                              \n                                          \
+      \                                          <input id=&amp;amp;amp;amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;amp;amp;amp;quot;\
+      \ type=&amp;amp;amp;amp;quot;hidden&amp;amp;amp;amp;quot; value=&amp;amp;amp;amp;quot;<i\
+      \ style=&amp;amp;amp;amp;amp;quot;color: #c8c8c8;&amp;amp;amp;amp;amp;quot;>No\
+      \ description provided.</i>&amp;amp;amp;amp;quot;>&amp;amp;amp;quot;><input\
+      \ id=&amp;amp;amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;amp;amp;quot;\
+      \ type=&amp;amp;amp;quot;hidden&amp;amp;amp;quot; value=&amp;amp;amp;quot;<i\
+      \ style=&amp;amp;amp;amp;quot;color: #c8c8c8;&amp;amp;amp;amp;quot;>No description\
+      \ provided.</i>\n                                                          \
+      \                              \n                                          \
+      \                                          <input id=&amp;amp;amp;amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;amp;amp;amp;quot;\
+      \ type=&amp;amp;amp;amp;quot;hidden&amp;amp;amp;amp;quot; value=&amp;amp;amp;amp;quot;<i\
+      \ style=&amp;amp;amp;amp;amp;quot;color: #c8c8c8;&amp;amp;amp;amp;amp;quot;>No\
+      \ description provided.</i>&amp;amp;amp;amp;quot;><input id=&amp;amp;amp;amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;amp;amp;amp;quot;\
+      \ type=&amp;amp;amp;amp;quot;hidden&amp;amp;amp;amp;quot; value=&amp;amp;amp;amp;quot;<i\
+      \ style=&amp;amp;amp;amp;amp;quot;color: #c8c8c8;&amp;amp;amp;amp;amp;quot;>No\
+      \ description provided.</i>\n                                              \
+      \                                          \n                              \
+      \                                                      <input id=&amp;amp;amp;amp;amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;amp;amp;amp;amp;quot;\
+      \ type=&amp;amp;amp;amp;amp;quot;hidden&amp;amp;amp;amp;amp;quot; value=&amp;amp;amp;amp;amp;quot;<i\
+      \ style=&amp;amp;amp;amp;amp;amp;quot;color: #c8c8c8;&amp;amp;amp;amp;amp;amp;quot;>No\
+      \ description provided.</i>&amp;amp;amp;amp;amp;quot;>&amp;amp;amp;amp;quot;>&amp;amp;amp;quot;>&amp;amp;quot;>&amp;quot;>&quot;><input\
+      \ id=&quot;space3_document_stepDataList.step-1.item.description_hidden&quot;\
+      \ type=&quot;hidden&quot; value=&quot;<i style=&amp;quot;color: #c8c8c8;&amp;quot;>No\
+      \ description provided.</i>\n                                              \
+      \                                          \n                              \
+      \                                                      <input id=&amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;quot;\
+      \ type=&amp;quot;hidden&amp;quot; value=&amp;quot;<i style=&amp;amp;quot;color:\
+      \ #c8c8c8;&amp;amp;quot;>No description provided.</i>&amp;quot;><input id=&amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;quot;\
+      \ type=&amp;quot;hidden&amp;quot; value=&amp;quot;<i style=&amp;amp;quot;color:\
+      \ #c8c8c8;&amp;amp;quot;>No description provided.</i>\n                    \
+      \                                                                    \n    \
+      \                                                                          \
+      \      <input id=&amp;amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;amp;quot;\
+      \ type=&amp;amp;quot;hidden&amp;amp;quot; value=&amp;amp;quot;<i style=&amp;amp;amp;quot;color:\
+      \ #c8c8c8;&amp;amp;amp;quot;>No description provided.</i>&amp;amp;quot;>&amp;quot;><input\
+      \ id=&amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;quot;\
+      \ type=&amp;quot;hidden&amp;quot; value=&amp;quot;<i style=&amp;amp;quot;color:\
+      \ #c8c8c8;&amp;amp;quot;>No description provided.</i>\n                    \
+      \                                                                    \n    \
+      \                                                                          \
+      \      <input id=&amp;amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;amp;quot;\
+      \ type=&amp;amp;quot;hidden&amp;amp;quot; value=&amp;amp;quot;<i style=&amp;amp;amp;quot;color:\
+      \ #c8c8c8;&amp;amp;amp;quot;>No description provided.</i>&amp;amp;quot;><input\
+      \ id=&amp;amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;amp;quot;\
+      \ type=&amp;amp;quot;hidden&amp;amp;quot; value=&amp;amp;quot;<i style=&amp;amp;amp;quot;color:\
+      \ #c8c8c8;&amp;amp;amp;quot;>No description provided.</i>\n                \
+      \                                                                        \n\
+      \                                                                          \
+      \          <input id=&amp;amp;amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;amp;amp;quot;\
+      \ type=&amp;amp;amp;quot;hidden&amp;amp;amp;quot; value=&amp;amp;amp;quot;<i\
+      \ style=&amp;amp;amp;amp;quot;color: #c8c8c8;&amp;amp;amp;amp;quot;>No description\
+      \ provided.</i>&amp;amp;amp;quot;>&amp;amp;quot;>&amp;quot;><input id=&amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;quot;\
+      \ type=&amp;quot;hidden&amp;quot; value=&amp;quot;<i style=&amp;amp;quot;color:\
+      \ #c8c8c8;&amp;amp;quot;>No description provided.</i>\n                    \
+      \                                                                    \n    \
+      \                                                                          \
+      \      <input id=&amp;amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;amp;quot;\
+      \ type=&amp;amp;quot;hidden&amp;amp;quot; value=&amp;amp;quot;<i style=&amp;amp;amp;quot;color:\
+      \ #c8c8c8;&amp;amp;amp;quot;>No description provided.</i>&amp;amp;quot;><input\
+      \ id=&amp;amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;amp;quot;\
+      \ type=&amp;amp;quot;hidden&amp;amp;quot; value=&amp;amp;quot;<i style=&amp;amp;amp;quot;color:\
+      \ #c8c8c8;&amp;amp;amp;quot;>No description provided.</i>\n                \
+      \                                                                        \n\
+      \                                                                          \
+      \          <input id=&amp;amp;amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;amp;amp;quot;\
+      \ type=&amp;amp;amp;quot;hidden&amp;amp;amp;quot; value=&amp;amp;amp;quot;<i\
+      \ style=&amp;amp;amp;amp;quot;color: #c8c8c8;&amp;amp;amp;amp;quot;>No description\
+      \ provided.</i>&amp;amp;amp;quot;>&amp;amp;quot;><input id=&amp;amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;amp;quot;\
+      \ type=&amp;amp;quot;hidden&amp;amp;quot; value=&amp;amp;quot;<i style=&amp;amp;amp;quot;color:\
+      \ #c8c8c8;&amp;amp;amp;quot;>No description provided.</i>\n                \
+      \                                                                        \n\
+      \                                                                          \
+      \          <input id=&amp;amp;amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;amp;amp;quot;\
+      \ type=&amp;amp;amp;quot;hidden&amp;amp;amp;quot; value=&amp;amp;amp;quot;<i\
+      \ style=&amp;amp;amp;amp;quot;color: #c8c8c8;&amp;amp;amp;amp;quot;>No description\
+      \ provided.</i>&amp;amp;amp;quot;><input id=&amp;amp;amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;amp;amp;quot;\
+      \ type=&amp;amp;amp;quot;hidden&amp;amp;amp;quot; value=&amp;amp;amp;quot;<i\
+      \ style=&amp;amp;amp;amp;quot;color: #c8c8c8;&amp;amp;amp;amp;quot;>No description\
+      \ provided.</i>\n                                                          \
+      \                              \n                                          \
+      \                                          <input id=&amp;amp;amp;amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;amp;amp;amp;quot;\
+      \ type=&amp;amp;amp;amp;quot;hidden&amp;amp;amp;amp;quot; value=&amp;amp;amp;amp;quot;<i\
+      \ style=&amp;amp;amp;amp;amp;quot;color: #c8c8c8;&amp;amp;amp;amp;amp;quot;>No\
+      \ description provided.</i>&amp;amp;amp;amp;quot;>&amp;amp;amp;quot;>&amp;amp;quot;>&amp;quot;><input\
+      \ id=&amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;quot;\
+      \ type=&amp;quot;hidden&amp;quot; value=&amp;quot;<i style=&amp;amp;quot;color:\
+      \ #c8c8c8;&amp;amp;quot;>No description provided.</i>\n                    \
+      \                                                                    \n    \
+      \                                                                          \
+      \      <input id=&amp;amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;amp;quot;\
+      \ type=&amp;amp;quot;hidden&amp;amp;quot; value=&amp;amp;quot;<i style=&amp;amp;amp;quot;color:\
+      \ #c8c8c8;&amp;amp;amp;quot;>No description provided.</i>&amp;amp;quot;><input\
+      \ id=&amp;amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;amp;quot;\
+      \ type=&amp;amp;quot;hidden&amp;amp;quot; value=&amp;amp;quot;<i style=&amp;amp;amp;quot;color:\
+      \ #c8c8c8;&amp;amp;amp;quot;>No description provided.</i>\n                \
+      \                                                                        \n\
+      \                                                                          \
+      \          <input id=&amp;amp;amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;amp;amp;quot;\
+      \ type=&amp;amp;amp;quot;hidden&amp;amp;amp;quot; value=&amp;amp;amp;quot;<i\
+      \ style=&amp;amp;amp;amp;quot;color: #c8c8c8;&amp;amp;amp;amp;quot;>No description\
+      \ provided.</i>&amp;amp;amp;quot;>&amp;amp;quot;><input id=&amp;amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;amp;quot;\
+      \ type=&amp;amp;quot;hidden&amp;amp;quot; value=&amp;amp;quot;<i style=&amp;amp;amp;quot;color:\
+      \ #c8c8c8;&amp;amp;amp;quot;>No description provided.</i>\n                \
+      \                                                                        \n\
+      \                                                                          \
+      \          <input id=&amp;amp;amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;amp;amp;quot;\
+      \ type=&amp;amp;amp;quot;hidden&amp;amp;amp;quot; value=&amp;amp;amp;quot;<i\
+      \ style=&amp;amp;amp;amp;quot;color: #c8c8c8;&amp;amp;amp;amp;quot;>No description\
+      \ provided.</i>&amp;amp;amp;quot;><input id=&amp;amp;amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;amp;amp;quot;\
+      \ type=&amp;amp;amp;quot;hidden&amp;amp;amp;quot; value=&amp;amp;amp;quot;<i\
+      \ style=&amp;amp;amp;amp;quot;color: #c8c8c8;&amp;amp;amp;amp;quot;>No description\
+      \ provided.</i>\n                                                          \
+      \                              \n                                          \
+      \                                          <input id=&amp;amp;amp;amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;amp;amp;amp;quot;\
+      \ type=&amp;amp;amp;amp;quot;hidden&amp;amp;amp;amp;quot; value=&amp;amp;amp;amp;quot;<i\
+      \ style=&amp;amp;amp;amp;amp;quot;color: #c8c8c8;&amp;amp;amp;amp;amp;quot;>No\
+      \ description provided.</i>&amp;amp;amp;amp;quot;>&amp;amp;amp;quot;>&amp;amp;quot;><input\
+      \ id=&amp;amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;amp;quot;\
+      \ type=&amp;amp;quot;hidden&amp;amp;quot; value=&amp;amp;quot;<i style=&amp;amp;amp;quot;color:\
+      \ #c8c8c8;&amp;amp;amp;quot;>No description provided.</i>\n                \
+      \                                                                        \n\
+      \                                                                          \
+      \          <input id=&amp;amp;amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;amp;amp;quot;\
+      \ type=&amp;amp;amp;quot;hidden&amp;amp;amp;quot; value=&amp;amp;amp;quot;<i\
+      \ style=&amp;amp;amp;amp;quot;color: #c8c8c8;&amp;amp;amp;amp;quot;>No description\
+      \ provided.</i>&amp;amp;amp;quot;><input id=&amp;amp;amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;amp;amp;quot;\
+      \ type=&amp;amp;amp;quot;hidden&amp;amp;amp;quot; value=&amp;amp;amp;quot;<i\
+      \ style=&amp;amp;amp;amp;quot;color: #c8c8c8;&amp;amp;amp;amp;quot;>No description\
+      \ provided.</i>\n                                                          \
+      \                              \n                                          \
+      \                                          <input id=&amp;amp;amp;amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;amp;amp;amp;quot;\
+      \ type=&amp;amp;amp;amp;quot;hidden&amp;amp;amp;amp;quot; value=&amp;amp;amp;amp;quot;<i\
+      \ style=&amp;amp;amp;amp;amp;quot;color: #c8c8c8;&amp;amp;amp;amp;amp;quot;>No\
+      \ description provided.</i>&amp;amp;amp;amp;quot;>&amp;amp;amp;quot;><input\
+      \ id=&amp;amp;amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;amp;amp;quot;\
+      \ type=&amp;amp;amp;quot;hidden&amp;amp;amp;quot; value=&amp;amp;amp;quot;<i\
+      \ style=&amp;amp;amp;amp;quot;color: #c8c8c8;&amp;amp;amp;amp;quot;>No description\
+      \ provided.</i>\n                                                          \
+      \                              \n                                          \
+      \                                          <input id=&amp;amp;amp;amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;amp;amp;amp;quot;\
+      \ type=&amp;amp;amp;amp;quot;hidden&amp;amp;amp;amp;quot; value=&amp;amp;amp;amp;quot;<i\
+      \ style=&amp;amp;amp;amp;amp;quot;color: #c8c8c8;&amp;amp;amp;amp;amp;quot;>No\
+      \ description provided.</i>&amp;amp;amp;amp;quot;><input id=&amp;amp;amp;amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;amp;amp;amp;quot;\
+      \ type=&amp;amp;amp;amp;quot;hidden&amp;amp;amp;amp;quot; value=&amp;amp;amp;amp;quot;<i\
+      \ style=&amp;amp;amp;amp;amp;quot;color: #c8c8c8;&amp;amp;amp;amp;amp;quot;>No\
+      \ description provided.</i>\n                                              \
+      \                                          \n                              \
+      \                                                      <input id=&amp;amp;amp;amp;amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;amp;amp;amp;amp;quot;\
+      \ type=&amp;amp;amp;amp;amp;quot;hidden&amp;amp;amp;amp;amp;quot; value=&amp;amp;amp;amp;amp;quot;<i\
+      \ style=&amp;amp;amp;amp;amp;amp;quot;color: #c8c8c8;&amp;amp;amp;amp;amp;amp;quot;>No\
+      \ description provided.</i>&amp;amp;amp;amp;amp;quot;>&amp;amp;amp;amp;quot;>&amp;amp;amp;quot;>&amp;amp;quot;>&amp;quot;><input\
+      \ id=&amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;quot;\
+      \ type=&amp;quot;hidden&amp;quot; value=&amp;quot;<i style=&amp;amp;quot;color:\
+      \ #c8c8c8;&amp;amp;quot;>No description provided.</i>\n                    \
+      \                                                                    \n    \
+      \                                                                          \
+      \      <input id=&amp;amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;amp;quot;\
+      \ type=&amp;amp;quot;hidden&amp;amp;quot; value=&amp;amp;quot;<i style=&amp;amp;amp;quot;color:\
+      \ #c8c8c8;&amp;amp;amp;quot;>No description provided.</i>&amp;amp;quot;><input\
+      \ id=&amp;amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;amp;quot;\
+      \ type=&amp;amp;quot;hidden&amp;amp;quot; value=&amp;amp;quot;<i style=&amp;amp;amp;quot;color:\
+      \ #c8c8c8;&amp;amp;amp;quot;>No description provided.</i>\n                \
+      \                                                                        \n\
+      \                                                                          \
+      \          <input id=&amp;amp;amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;amp;amp;quot;\
+      \ type=&amp;amp;amp;quot;hidden&amp;amp;amp;quot; value=&amp;amp;amp;quot;<i\
+      \ style=&amp;amp;amp;amp;quot;color: #c8c8c8;&amp;amp;amp;amp;quot;>No description\
+      \ provided.</i>&amp;amp;amp;quot;>&amp;amp;quot;><input id=&amp;amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;amp;quot;\
+      \ type=&amp;amp;quot;hidden&amp;amp;quot; value=&amp;amp;quot;<i style=&amp;amp;amp;quot;color:\
+      \ #c8c8c8;&amp;amp;amp;quot;>No description provided.</i>\n                \
+      \                                                                        \n\
+      \                                                                          \
+      \          <input id=&amp;amp;amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;amp;amp;quot;\
+      \ type=&amp;amp;amp;quot;hidden&amp;amp;amp;quot; value=&amp;amp;amp;quot;<i\
+      \ style=&amp;amp;amp;amp;quot;color: #c8c8c8;&amp;amp;amp;amp;quot;>No description\
+      \ provided.</i>&amp;amp;amp;quot;><input id=&amp;amp;amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;amp;amp;quot;\
+      \ type=&amp;amp;amp;quot;hidden&amp;amp;amp;quot; value=&amp;amp;amp;quot;<i\
+      \ style=&amp;amp;amp;amp;quot;color: #c8c8c8;&amp;amp;amp;amp;quot;>No description\
+      \ provided.</i>\n                                                          \
+      \                              \n                                          \
+      \                                          <input id=&amp;amp;amp;amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;amp;amp;amp;quot;\
+      \ type=&amp;amp;amp;amp;quot;hidden&amp;amp;amp;amp;quot; value=&amp;amp;amp;amp;quot;<i\
+      \ style=&amp;amp;amp;amp;amp;quot;color: #c8c8c8;&amp;amp;amp;amp;amp;quot;>No\
+      \ description provided.</i>&amp;amp;amp;amp;quot;>&amp;amp;amp;quot;>&amp;amp;quot;><input\
+      \ id=&amp;amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;amp;quot;\
+      \ type=&amp;amp;quot;hidden&amp;amp;quot; value=&amp;amp;quot;<i style=&amp;amp;amp;quot;color:\
+      \ #c8c8c8;&amp;amp;amp;quot;>No description provided.</i>\n                \
+      \                                                                        \n\
+      \                                                                          \
+      \          <input id=&amp;amp;amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;amp;amp;quot;\
+      \ type=&amp;amp;amp;quot;hidden&amp;amp;amp;quot; value=&amp;amp;amp;quot;<i\
+      \ style=&amp;amp;amp;amp;quot;color: #c8c8c8;&amp;amp;amp;amp;quot;>No description\
+      \ provided.</i>&amp;amp;amp;quot;><input id=&amp;amp;amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;amp;amp;quot;\
+      \ type=&amp;amp;amp;quot;hidden&amp;amp;amp;quot; value=&amp;amp;amp;quot;<i\
+      \ style=&amp;amp;amp;amp;quot;color: #c8c8c8;&amp;amp;amp;amp;quot;>No description\
+      \ provided.</i>\n                                                          \
+      \                              \n                                          \
+      \                                          <input id=&amp;amp;amp;amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;amp;amp;amp;quot;\
+      \ type=&amp;amp;amp;amp;quot;hidden&amp;amp;amp;amp;quot; value=&amp;amp;amp;amp;quot;<i\
+      \ style=&amp;amp;amp;amp;amp;quot;color: #c8c8c8;&amp;amp;amp;amp;amp;quot;>No\
+      \ description provided.</i>&amp;amp;amp;amp;quot;>&amp;amp;amp;quot;><input\
+      \ id=&amp;amp;amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;amp;amp;quot;\
+      \ type=&amp;amp;amp;quot;hidden&amp;amp;amp;quot; value=&amp;amp;amp;quot;<i\
+      \ style=&amp;amp;amp;amp;quot;color: #c8c8c8;&amp;amp;amp;amp;quot;>No description\
+      \ provided.</i>\n                                                          \
+      \                              \n                                          \
+      \                                          <input id=&amp;amp;amp;amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;amp;amp;amp;quot;\
+      \ type=&amp;amp;amp;amp;quot;hidden&amp;amp;amp;amp;quot; value=&amp;amp;amp;amp;quot;<i\
+      \ style=&amp;amp;amp;amp;amp;quot;color: #c8c8c8;&amp;amp;amp;amp;amp;quot;>No\
+      \ description provided.</i>&amp;amp;amp;amp;quot;><input id=&amp;amp;amp;amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;amp;amp;amp;quot;\
+      \ type=&amp;amp;amp;amp;quot;hidden&amp;amp;amp;amp;quot; value=&amp;amp;amp;amp;quot;<i\
+      \ style=&amp;amp;amp;amp;amp;quot;color: #c8c8c8;&amp;amp;amp;amp;amp;quot;>No\
+      \ description provided.</i>\n                                              \
+      \                                          \n                              \
+      \                                                      <input id=&amp;amp;amp;amp;amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;amp;amp;amp;amp;quot;\
+      \ type=&amp;amp;amp;amp;amp;quot;hidden&amp;amp;amp;amp;amp;quot; value=&amp;amp;amp;amp;amp;quot;<i\
+      \ style=&amp;amp;amp;amp;amp;amp;quot;color: #c8c8c8;&amp;amp;amp;amp;amp;amp;quot;>No\
+      \ description provided.</i>&amp;amp;amp;amp;amp;quot;>&amp;amp;amp;amp;quot;>&amp;amp;amp;quot;>&amp;amp;quot;><input\
+      \ id=&amp;amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;amp;quot;\
+      \ type=&amp;amp;quot;hidden&amp;amp;quot; value=&amp;amp;quot;<i style=&amp;amp;amp;quot;color:\
+      \ #c8c8c8;&amp;amp;amp;quot;>No description provided.</i>\n                \
+      \                                                                        \n\
+      \                                                                          \
+      \          <input id=&amp;amp;amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;amp;amp;quot;\
+      \ type=&amp;amp;amp;quot;hidden&amp;amp;amp;quot; value=&amp;amp;amp;quot;<i\
+      \ style=&amp;amp;amp;amp;quot;color: #c8c8c8;&amp;amp;amp;amp;quot;>No description\
+      \ provided.</i>&amp;amp;amp;quot;><input id=&amp;amp;amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;amp;amp;quot;\
+      \ type=&amp;amp;amp;quot;hidden&amp;amp;amp;quot; value=&amp;amp;amp;quot;<i\
+      \ style=&amp;amp;amp;amp;quot;color: #c8c8c8;&amp;amp;amp;amp;quot;>No description\
+      \ provided.</i>\n                                                          \
+      \                              \n                                          \
+      \                                          <input id=&amp;amp;amp;amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;amp;amp;amp;quot;\
+      \ type=&amp;amp;amp;amp;quot;hidden&amp;amp;amp;amp;quot; value=&amp;amp;amp;amp;quot;<i\
+      \ style=&amp;amp;amp;amp;amp;quot;color: #c8c8c8;&amp;amp;amp;amp;amp;quot;>No\
+      \ description provided.</i>&amp;amp;amp;amp;quot;>&amp;amp;amp;quot;><input\
+      \ id=&amp;amp;amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;amp;amp;quot;\
+      \ type=&amp;amp;amp;quot;hidden&amp;amp;amp;quot; value=&amp;amp;amp;quot;<i\
+      \ style=&amp;amp;amp;amp;quot;color: #c8c8c8;&amp;amp;amp;amp;quot;>No description\
+      \ provided.</i>\n                                                          \
+      \                              \n                                          \
+      \                                          <input id=&amp;amp;amp;amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;amp;amp;amp;quot;\
+      \ type=&amp;amp;amp;amp;quot;hidden&amp;amp;amp;amp;quot; value=&amp;amp;amp;amp;quot;<i\
+      \ style=&amp;amp;amp;amp;amp;quot;color: #c8c8c8;&amp;amp;amp;amp;amp;quot;>No\
+      \ description provided.</i>&amp;amp;amp;amp;quot;><input id=&amp;amp;amp;amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;amp;amp;amp;quot;\
+      \ type=&amp;amp;amp;amp;quot;hidden&amp;amp;amp;amp;quot; value=&amp;amp;amp;amp;quot;<i\
+      \ style=&amp;amp;amp;amp;amp;quot;color: #c8c8c8;&amp;amp;amp;amp;amp;quot;>No\
+      \ description provided.</i>\n                                              \
+      \                                          \n                              \
+      \                                                      <input id=&amp;amp;amp;amp;amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;amp;amp;amp;amp;quot;\
+      \ type=&amp;amp;amp;amp;amp;quot;hidden&amp;amp;amp;amp;amp;quot; value=&amp;amp;amp;amp;amp;quot;<i\
+      \ style=&amp;amp;amp;amp;amp;amp;quot;color: #c8c8c8;&amp;amp;amp;amp;amp;amp;quot;>No\
+      \ description provided.</i>&amp;amp;amp;amp;amp;quot;>&amp;amp;amp;amp;quot;>&amp;amp;amp;quot;><input\
+      \ id=&amp;amp;amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;amp;amp;quot;\
+      \ type=&amp;amp;amp;quot;hidden&amp;amp;amp;quot; value=&amp;amp;amp;quot;<i\
+      \ style=&amp;amp;amp;amp;quot;color: #c8c8c8;&amp;amp;amp;amp;quot;>No description\
+      \ provided.</i>\n                                                          \
+      \                              \n                                          \
+      \                                          <input id=&amp;amp;amp;amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;amp;amp;amp;quot;\
+      \ type=&amp;amp;amp;amp;quot;hidden&amp;amp;amp;amp;quot; value=&amp;amp;amp;amp;quot;<i\
+      \ style=&amp;amp;amp;amp;amp;quot;color: #c8c8c8;&amp;amp;amp;amp;amp;quot;>No\
+      \ description provided.</i>&amp;amp;amp;amp;quot;><input id=&amp;amp;amp;amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;amp;amp;amp;quot;\
+      \ type=&amp;amp;amp;amp;quot;hidden&amp;amp;amp;amp;quot; value=&amp;amp;amp;amp;quot;<i\
+      \ style=&amp;amp;amp;amp;amp;quot;color: #c8c8c8;&amp;amp;amp;amp;amp;quot;>No\
+      \ description provided.</i>\n                                              \
+      \                                          \n                              \
+      \                                                      <input id=&amp;amp;amp;amp;amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;amp;amp;amp;amp;quot;\
+      \ type=&amp;amp;amp;amp;amp;quot;hidden&amp;amp;amp;amp;amp;quot; value=&amp;amp;amp;amp;amp;quot;<i\
+      \ style=&amp;amp;amp;amp;amp;amp;quot;color: #c8c8c8;&amp;amp;amp;amp;amp;amp;quot;>No\
+      \ description provided.</i>&amp;amp;amp;amp;amp;quot;>&amp;amp;amp;amp;quot;><input\
+      \ id=&amp;amp;amp;amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;amp;amp;amp;quot;\
+      \ type=&amp;amp;amp;amp;quot;hidden&amp;amp;amp;amp;quot; value=&amp;amp;amp;amp;quot;<i\
+      \ style=&amp;amp;amp;amp;amp;quot;color: #c8c8c8;&amp;amp;amp;amp;amp;quot;>No\
+      \ description provided.</i>\n                                              \
+      \                                          \n                              \
+      \                                                      <input id=&amp;amp;amp;amp;amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;amp;amp;amp;amp;quot;\
+      \ type=&amp;amp;amp;amp;amp;quot;hidden&amp;amp;amp;amp;amp;quot; value=&amp;amp;amp;amp;amp;quot;<i\
+      \ style=&amp;amp;amp;amp;amp;amp;quot;color: #c8c8c8;&amp;amp;amp;amp;amp;amp;quot;>No\
+      \ description provided.</i>&amp;amp;amp;amp;amp;quot;><input id=&amp;amp;amp;amp;amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;amp;amp;amp;amp;quot;\
+      \ type=&amp;amp;amp;amp;amp;quot;hidden&amp;amp;amp;amp;amp;quot; value=&amp;amp;amp;amp;amp;quot;<i\
+      \ style=&amp;amp;amp;amp;amp;amp;quot;color: #c8c8c8;&amp;amp;amp;amp;amp;amp;quot;>No\
+      \ description provided.</i>\n                                              \
+      \                                          \n                              \
+      \                                                      <input id=&amp;amp;amp;amp;amp;amp;quot;space3_document_stepDataList.step-1.item.description_hidden&amp;amp;amp;amp;amp;amp;quot;\
+      \ type=&amp;amp;amp;amp;amp;amp;quot;hidden&amp;amp;amp;amp;amp;amp;quot; value=&amp;amp;amp;amp;amp;amp;quot;<i\
+      \ style=&amp;amp;amp;amp;amp;amp;amp;quot;color: #c8c8c8;&amp;amp;amp;amp;amp;amp;amp;quot;>No\
+      \ description provided.</i>&amp;amp;amp;amp;amp;amp;quot;>&amp;amp;amp;amp;amp;quot;>&amp;amp;amp;amp;quot;>&amp;amp;amp;quot;>&amp;amp;quot;>&amp;quot;>&quot;>\"\
+      >"
+    path: /tmp/vpc_properties.json
+    reboot: false
+  itemType: PropertiesTransfer
+  name: Transfer RunBook Properties - JSON Format
+  nodesImportFilePath: ''
+  replaceProperties: false
+- answersRequired: false
+  fileIncludes: support/vpc-setup.py
+  fileIncludesDestinationFolder: /tmp
+  generatedPropertiesFilePath: ''
+  id: Id1K
+  idempotent: false
+  item: !CommandItem
+    command: python /tmp/vpc-setup.py /tmp/vpc_properties.json /tmp/n-out.txt
+    description: '<i style="color: #c8c8c8;">No description provided.</i>'
+    reboot: false
+  itemType: Command
+  name: Setup VPC
+  nodesImportFilePath: ''
+  replaceProperties: false
+successfulCompletionMessage: AWS VPC Setup Successful.
+summary: RunBook for setting up complete VPC environment.
+supportedOs: ''
+utilityMode: false
+version: '1'

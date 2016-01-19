@@ -1,0 +1,80 @@
+# This RunBook file generated using Divine Terminal. To download Free Edition of Divine Terminal go to www.divineterminal.com
+!RunBook
+description: This is a sample run-book to demonstrate support for different languages. Each step of run-book can be of any language of user's choice as shown in this sample run-book.
+groupSteps: false
+name: Multi-Language Support Example
+references: '<i style="color: #c8c8c8;">No references provided.</i>'
+sequence: 12
+steps:
+- answersRequired: false
+  id: Id3v
+  idempotent: false
+  item: !ScriptItem
+    arguments: ''
+    description: Step with code written using Shell script.
+    invokingProgram: sh
+    language: Shell
+    reboot: false
+    script: |-
+      #!/bin/bash
+      total=`expr $1 + $2`
+      echo "Sum of two numbers is $total"
+  itemType: Script
+  name: Shell Example Step
+  replaceProperties: false
+- answersRequired: false
+  id: Id0H
+  idempotent: false
+  item: !ScriptItem
+    arguments: ''
+    description: Step with code written using Perl language.
+    invokingProgram: perl
+    language: Perl
+    reboot: false
+    script: |-
+      $a = $ARGV[0];
+      $b = $ARGV[1];
+      my $c=$a+$b;
+      printf ("Sum of two numbers is %i",$c);
+  itemType: Script
+  name: Perl Example Step
+  replaceProperties: false
+- answersRequired: false
+  id: Id1P
+  idempotent: false
+  item: !ScriptItem
+    arguments: ''
+    description: Step with code written using Python language.
+    invokingProgram: python
+    language: Python
+    reboot: false
+    script: |-
+      import sys
+      def addTwo(number1, number2) :
+        return number1 + number2
+
+      print addTwo(int(sys.argv[1]),int(sys.argv[2]))
+  itemType: Script
+  name: Python Example Step
+  replaceProperties: false
+- answersRequired: false
+  id: Id2M
+  idempotent: false
+  item: !ScriptItem
+    arguments: ''
+    description: Step with code written using Ruby language.
+    invokingProgram: ruby
+    language: Ruby
+    reboot: false
+    script: |-
+      num1 = ARGV[0];
+      num2 = ARGV[1];
+      print "Sum of two numbers is " , (num1.to_i + num2.to_i);
+  itemType: Script
+  name: Ruby Example Step
+  replaceProperties: false
+successfulCompletionMessage: Multi-Language Steps RunBook executed Successfully.
+summary: '<i style="color: #c8c8c8;">No summary provided.</i>'
+supportedOs: ''
+utilityMode: false
+version: '1'

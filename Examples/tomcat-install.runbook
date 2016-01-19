@@ -1,0 +1,210 @@
+# This RunBook file generated using Divine Terminal. To download Free Edition of Divine Terminal go to www.divineterminal.com
+!RunBook
+authors: Divine Cloud Team
+description: |-
+  This runbook installs tomcat server on one or more nodes.
+  <br>
+
+  <br>
+
+  Using this runbook the Tomcat server can be deployed in following different ways:
+  <br>
+  <table width="100%">
+  <tbody><tr>
+  <td width="15%">
+  </td>
+  <td width="70%">
+  <img src="https://s3.amazonaws.com/artifacts.divineterminal.com/samples/images/Tomcat_Servers.png" align="center">
+  </td>
+  <td width="15%">
+  </td>
+  </tr>
+  </tbody></table>
+  <br>
+  As shown above:
+  <ul>
+      <li>In option A, Tomcat server is installed on one Node.</li>
+      <li>In option B, Tomcat server is installed on multiple Nodes for load balancing purpose.</li>
+  </ul>
+
+  To install tomcat server on mulitple nodes at the same time, select those desired nodes, when executing the RunBook.
+  <br><br>
+groupSteps: true
+hardwareRequirements: Minimum memory of 512 MB or more.
+name: Tomcat Install RunBook
+preRequisite: |-
+  Following software need to be already installed on the machine before executing this run book:
+  <ul>
+  <li>Java</li>
+  <li>wget utility for downloading tomcat binaries.</li>
+  </ul>
+properties:
+- defaultValue: ''
+  description: Target folder for installing tomcat server
+  multiSelect: ''
+  name: $TARGET_HOME
+  required: true
+  type: Text
+references: '<i style="color: #c8c8c8;">No references provided.</i>'
+sequence: 42
+stepGroupsName: Install Tomcat Server
+steps:
+- answersRequired: false
+  fileIncludes: ''
+  fileIncludesDestinationFolder: ''
+  generatedPropertiesFilePath: ''
+  id: Id0k
+  idempotent: false
+  item: !ScriptItem
+    arguments: ''
+    description: This step verifies if the provided target location has any files in it. If it does, it deletes those file, for a clean installation of tomcat server.
+    invokingProgram: sh
+    language: Shell
+    reboot: false
+    script: |-
+      echo "Stopping the existing tomcat process if running from same target home directory"
+
+      pkill -f "$TARGET_HOME"
+
+      echo "Cleaning up the Target home directory."
+      if [ "$TARGET_HOME" != "" ]
+      then
+          echo "TARGET_HOME specified"
+          rm -rf $TARGET_HOME
+      else
+          echo "TARGET_HOME need to be specified"
+          exit 1
+      fi
+
+      if [ ! -d "$TARGET_HOME" ]; then
+          mkdir $TARGET_HOME
+      fi
+  itemType: Script
+  name: Existing Tomcat Server Cleanup
+  nodeSet: TOMCAT
+  nodesImportFilePath: ''
+  replaceProperties: true
+- answersRequired: false
+  fileIncludes: ''
+  fileIncludesDestinationFolder: ''
+  generatedPropertiesFilePath: ''
+  id: Id1i
+  idempotent: false
+  item: !ScriptItem
+    arguments: ''
+    description: |-
+      In this step, the tomcat binary is downloaded using wget.
+      <br><br>
+      Once the download is successfull, the binary is unzipped to the TARGET_HOME folder.
+      <br><br>
+      The shell scripts are given execute permissions to enable to start tomcat server.
+    invokingProgram: sh
+    language: Shell
+    reboot: false
+    script: |
+      if hash wget 2>/dev/null; then
+        echo "wget command is present"
+        wget --directory-prefix=$TARGET_HOME http://archive.apache.org/dist/tomcat/tomcat-8/v8.0.22/bin/apache-tomcat-8.0.22.tar.gz
+      else
+        if hash curl 2>/dev/null; then
+          echo "curl command is present"
+          curl -o $TARGET_HOME/apache-tomcat-8.0.22.tar.gz http://archive.apache.org/dist/tomcat/tomcat-8/v8.0.22/bin/apache-tomcat-8.0.22.tar.gz
+        else
+          echo "Neither wget nor curl command installed on this instance. Please install one of these two packages before moving forward with this runbook."
+          exit 1
+        fi
+      fi
+
+      cd $TARGET_HOME
+      tar -xvf $TARGET_HOME/apache-tomcat-8.0.22.tar.gz
+      chmod +rwx $TARGET_HOME/apache-tomcat-8.0.22/bin/*.sh
+  itemType: Script
+  name: Tomcat Binary Download Step
+  nodeSet: TOMCAT
+  nodesImportFilePath: ''
+  replaceProperties: true
+- answersRequired: false
+  fileIncludes: ''
+  fileIncludesDestinationFolder: ''
+  generatedPropertiesFilePath: ''
+  id: Id2v
+  idempotent: false
+  item: !ScriptItem
+    arguments: ''
+    description: This steps invoked the tomcat startup script.
+    invokingProgram: sh
+    language: Shell
+    reboot: false
+    script: |-
+      if [  "$JAVA_LIB_HOME" != "" ]; then
+          export JAVA_HOME=JAVA_LIB_HOME
+      fi
+
+      if [ "$JAVA_HOME" = "" ]; then
+          echo "Need to set JAVA_HOME"
+          exit 1
+      fi
+
+      if [ ! -f $JAVA_HOME/bin/java ]; then
+          echo "JAVA_HOME is invalid"
+          exit 2
+      fi
+
+      nohup $TARGET_HOME/apache-tomcat-8.0.22/bin/startup.sh &
+      cat nohup.out
+      sleep 5
+  itemType: Script
+  name: Tomcat Server Startup Step
+  nodeSet: TOMCAT
+  nodesImportFilePath: ''
+  properties:
+  - defaultValue: ''
+    description: '<i style="color: #c8c8c8;">No description provided.</i>'
+    multiSelect: ''
+    name: JAVA_LIB_HOME
+    required: false
+    type: Text
+  replaceProperties: true
+- answersRequired: false
+  id: Id3V
+  idempotent: false
+  item: !ScriptItem
+    arguments: ''
+    description: In this step, we make multiple attempt to get the Tomcat Home page. If found, the server is considered to be successfully started. In not server startup has failed.
+    invokingProgram: sh
+    language: Shell
+    reboot: false
+    script: |-
+      LIMIT=20
+
+      index=0
+      status="Offline"
+      while [ $index -le "$LIMIT" ]
+      do
+          index=$(($index+1))
+          sleep 1
+          wget -q --spider http://127.0.0.1:8080/
+          if [ $? -eq 0 ]; then
+              echo "Online"
+              status="Online"
+              break
+          else
+              echo "Offline"
+          fi
+      done
+
+      if [ $status = "Offline" ]
+      then
+          echo "Tomcat Server startup verification failed."
+          exit 1
+      else
+          echo "Tomcat server verification successful."
+      fi
+  itemType: Script
+  name: Tomcat Server Running Verification Step
+  nodeSet: TOMCAT
+  replaceProperties: false
+summary: This is a simple run book for installing tomcat version 8 on any linux environments.
+supportedOs: ''
+utilityMode: false
+version: '1'

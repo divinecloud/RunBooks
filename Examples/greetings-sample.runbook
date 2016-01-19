@@ -1,0 +1,46 @@
+# This RunBook file generated using Divine Terminal. To download Free Edition of Divine Terminal go to www.divineterminal.com
+!RunBook
+authors: Divine Cloud Team
+description: This is a simple Hello World RunBook.
+groupSteps: false
+hardwareRequirements: '<i style="color: #c8c8c8;">None</i>'
+name: Sample Greetings RunBook
+preRequisite: '<i style="color: #c8c8c8;">None</i>'
+references: '<i style="color: #c8c8c8;">No references provided.</i>'
+sequence: 8
+steps:
+- answersRequired: false
+  id: Id0p
+  idempotent: false
+  item: !CommandItem
+    command: echo "Hello there"
+    description: This step displays the <b>"Hello there"</b> greetings when executed on any given node(s).
+    reboot: false
+  itemType: Command
+  name: Greetings Step
+  replaceProperties: false
+- answersRequired: false
+  fileIncludes: ''
+  fileIncludesDestinationFolder: ''
+  generatedPropertiesFilePath: ''
+  id: Id1Q
+  idempotent: false
+  item: !CommandItem
+    command: echo $GREET_MSG
+    description: This step displays the <b>"Hello again"</b> greetings when executed on any given node(s).
+    reboot: false
+  itemType: Command
+  name: Greetings Again Step
+  nodesImportFilePath: ''
+  properties:
+  - defaultValue: DevOps Rocks!
+    description: Type your Greetings message
+    multiSelect: ''
+    name: $GREET_MSG
+    required: false
+    type: Text
+  replaceProperties: true
+summary: '<i style="color: #c8c8c8;">Simple runbook for demonstration purpose.</i>'
+supportedOs: ''
+utilityMode: false
+version: '1.0'
