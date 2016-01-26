@@ -1,0 +1,187 @@
+# This RunBook file generated using Divine Terminal. To download Free Edition of Divine Terminal go to www.divineterminal.com
+!RunBook
+generatedPropertiesFilePath: ''
+groupSteps: false
+name: Redis Master-Slave Install on Ubuntu
+properties:
+- defaultValue: ''
+  multiSelect: ''
+  name: $REDIS_MASTER_IP
+  required: true
+  type: Text
+references: ''
+releaseName: ''
+releaseVersion: ''
+sequence: 29
+stepGroupsName: ''
+steps:
+- answersRequired: false
+  fileIncludes: ''
+  fileIncludesDestinationFolder: ''
+  generatedPropertiesFilePath: ''
+  id: Id0r
+  idempotent: false
+  item: !ScriptItem
+    arguments: ''
+    invokingProgram: sh
+    language: Shell
+    reboot: false
+    script: |-
+      sudo add-apt-repository -y ppa:chris-lea/redis-server
+      sudo apt-get -y update
+      sudo apt-get -y install redis-server
+      redis-benchmark -q -n 1000 -c 10 -P 5
+
+      sudo apt-get install -y python-pip python-dev build-essential
+      sudo pip install --upgrade pip
+      sudo pip install redis
+  itemType: Script
+  name: Install Redis Binaries
+  nodeSet: ALL
+  nodesImportFilePath: ''
+  replaceProperties: false
+- answersRequired: false
+  fileIncludes: ''
+  fileIncludesDestinationFolder: ''
+  generatedPropertiesFilePath: ''
+  id: Id1K
+  idempotent: false
+  item: !TextReplaceItem
+    backup: true
+    fileName: /etc/redis/redis.conf
+    propertiesList:
+    - key: tcp-keepalive 0
+      value: tcp-keepalive 60
+    - key: bind 127.0.0.1
+      value: bind 0.0.0.0
+    - key: '# requirepass foobared'
+      value: requirepass welcome1
+    - key: '# maxmemory-policy volatile-lru'
+      value: maxmemory-policy noeviction
+    - key: appendonly no
+      value: appendonly yes
+    - key: '# appendfilename appendonly.aof'
+      value: appendfilename redis-staging-ao.aof
+    reboot: false
+  itemType: TextReplace
+  name: Configure Redis Master
+  nodeSet: MASTER
+  nodesImportFilePath: ''
+  replaceProperties: false
+- answersRequired: false
+  fileIncludes: ''
+  fileIncludesDestinationFolder: ''
+  generatedPropertiesFilePath: ''
+  id: Id2r
+  idempotent: false
+  item: !ScriptItem
+    arguments: ''
+    invokingProgram: sh
+    language: Shell
+    reboot: false
+    script: |-
+      sudo service redis-server restart
+      sleep 2
+  itemType: Script
+  name: Restart Redis Master
+  nodeSet: MASTER
+  nodesImportFilePath: ''
+  replaceProperties: false
+- answersRequired: false
+  fileIncludes: ''
+  fileIncludesDestinationFolder: ''
+  generatedPropertiesFilePath: ''
+  id: Id6E
+  idempotent: false
+  item: !TextReplaceItem
+    backup: false
+    fileName: /etc/redis/redis.conf
+    propertiesList:
+    - key: bind 127.0.0.1
+      value: '#bind 127.0.0.1'
+    - key: '# requirepass foobared'
+      value: requirepass welcome1
+    - key: '# slaveof <masterip> <masterport>'
+      value: slaveof $REDIS_MASTER_IP 6379
+    - key: '# masterauth <master-password>'
+      value: masterauth welcome1
+    reboot: false
+  itemType: TextReplace
+  name: Configure Redis Slave
+  nodeSet: SLAVE
+  nodesImportFilePath: ''
+  replaceProperties: true
+- answersRequired: false
+  fileIncludes: ''
+  fileIncludesDestinationFolder: ''
+  generatedPropertiesFilePath: ''
+  id: Id7b
+  idempotent: false
+  item: !ScriptItem
+    arguments: ''
+    invokingProgram: sh
+    language: Shell
+    reboot: false
+    script: |-
+      sudo service redis-server restart
+      sleep 2
+  itemType: Script
+  name: Restart Redis Slave Server
+  nodeSet: SLAVE
+  nodesImportFilePath: ''
+  replaceProperties: false
+- answersRequired: false
+  fileIncludes: ''
+  fileIncludesDestinationFolder: ''
+  generatedPropertiesFilePath: ''
+  id: Id14h
+  idempotent: false
+  item: !ScriptItem
+    arguments: ''
+    invokingProgram: sh
+    language: Shell
+    reboot: false
+    script: |-
+      redis-cli -a welcome1 -h $REDIS_MASTER_IP -p 6379 INFO > /tmp/redis-output.txt
+      if grep -q "connected_slaves:1" /tmp/redis-output.txt
+      then
+          echo "Redis Master & Slave Connection Successful"
+      else
+          echo "Redis Master & Slave Connection Failed"
+          exit 99999
+      fi
+  itemType: Script
+  name: Verify Master - Slave Communication
+  nodeSet: SLAVE
+  nodesImportFilePath: ''
+  replaceProperties: true
+- answersRequired: false
+  fileIncludes: ''
+  fileIncludesDestinationFolder: ''
+  generatedPropertiesFilePath: ''
+  id: Id13J
+  idempotent: false
+  item: !ScriptItem
+    arguments: ''
+    invokingProgram: python
+    language: Python
+    reboot: false
+    script: |
+      import redis
+      r = redis.StrictRedis(host='$REDIS_MASTER_IP', port=6379, db=0, password='welcome1')
+      r.set('foo', 'bar')
+      barValue=r.get('foo')
+      print barValue
+
+      if(barValue!="bar"):
+              print("Redis Installation Failed")
+              exit(1)
+  itemType: Script
+  name: Verify Redis Service
+  nodeSet: SLAVE
+  nodesImportFilePath: ''
+  replaceProperties: true
+summary: ''
+supportedOs: ''
+utilityMode: false
+version: '1'
