@@ -1,18 +1,20 @@
 # This RunBook file generated using Divine Terminal. To download Free Edition of Divine Terminal go to www.divineterminal.com
 !RunBook
+authors: Divine Cloud Team
 generatedPropertiesFilePath: ''
 groupSteps: false
 name: Redis Master-Slave Install on Ubuntu
 properties:
 - defaultValue: ''
+  description: '<i style="color: #c8c8c8;">No description provided.</i>'
   multiSelect: ''
   name: $REDIS_MASTER_IP
   required: true
   type: Text
-references: ''
+references: '<i style="color: #c8c8c8;">No references provided.</i>'
 releaseName: ''
 releaseVersion: ''
-sequence: 29
+sequence: 36
 stepGroupsName: ''
 steps:
 - answersRequired: false
@@ -23,6 +25,7 @@ steps:
   idempotent: false
   item: !ScriptItem
     arguments: ''
+    description: '<i style="color: #c8c8c8;">No description provided.</i>'
     invokingProgram: sh
     language: Shell
     reboot: false
@@ -48,6 +51,7 @@ steps:
   idempotent: false
   item: !TextReplaceItem
     backup: true
+    description: '<i style="color: #c8c8c8;">No description provided.</i>'
     fileName: /etc/redis/redis.conf
     propertiesList:
     - key: tcp-keepalive 0
@@ -76,6 +80,7 @@ steps:
   idempotent: false
   item: !ScriptItem
     arguments: ''
+    description: '<i style="color: #c8c8c8;">No description provided.</i>'
     invokingProgram: sh
     language: Shell
     reboot: false
@@ -95,6 +100,7 @@ steps:
   idempotent: false
   item: !TextReplaceItem
     backup: false
+    description: '<i style="color: #c8c8c8;">No description provided.</i>'
     fileName: /etc/redis/redis.conf
     propertiesList:
     - key: bind 127.0.0.1
@@ -119,6 +125,7 @@ steps:
   idempotent: false
   item: !ScriptItem
     arguments: ''
+    description: '<i style="color: #c8c8c8;">No description provided.</i>'
     invokingProgram: sh
     language: Shell
     reboot: false
@@ -138,6 +145,7 @@ steps:
   idempotent: false
   item: !ScriptItem
     arguments: ''
+    description: '<i style="color: #c8c8c8;">No description provided.</i>'
     invokingProgram: sh
     language: Shell
     reboot: false
@@ -163,6 +171,7 @@ steps:
   idempotent: false
   item: !ScriptItem
     arguments: ''
+    description: '<i style="color: #c8c8c8;">No description provided.</i>'
     invokingProgram: python
     language: Python
     reboot: false
@@ -181,7 +190,7 @@ steps:
   nodeSet: SLAVE
   nodesImportFilePath: ''
   replaceProperties: true
-summary: ''
+summary: '<i style="color: #c8c8c8;">No summary provided.</i>'
 supportedOs: ''
 utilityMode: false
 version: '1'
